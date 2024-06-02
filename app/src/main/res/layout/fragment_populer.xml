@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/scrollView"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.home.ui.home.PopulerFragment">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_marginHorizontal="@dimen/_15dp"
+        android:layout_marginTop="@dimen/_10dp"
+        android:layout_marginBottom="@dimen/_20dp"
+        android:layout_width="match_parent"
+        android:layout_height="150dp">
+
+        <androidx.viewpager.widget.ViewPager
+            android:layout_above="@+id/dotsLayout"
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"/>
+
+        <LinearLayout
+            android:id="@+id/dotsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="@dimen/_10dp"
+            android:gravity="center"
+            android:orientation="horizontal"/>
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_marginHorizontal="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Global"
+            style="@style/HeaderTextStyle"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:drawableLeft="@drawable/icons8_globe"
+            android:drawablePadding="5dp"
+            android:gravity="center_vertical"/>
+
+        <ImageButton
+            android:id="@+id/ic_filter"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/filter_list"
+            android:background="@null"
+            android:layout_alignParentRight="true"
+            android:padding="8dp"/>
+
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_live_user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        tools:listitem="@layout/item_live_user_layout"
+        android:nestedScrollingEnabled="false"
+        app:spanCount="2"/>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

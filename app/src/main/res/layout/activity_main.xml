@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_666"
+    tools:context=".ui.activity.MainActivity">
+
+    <com.stream.prettylive.streaming.internal.sdk.components.express.ZEGOVideoView
+        android:id="@+id/video_view"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/live_userinfo_userid_prefix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="Your UserID :"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:layout_margin="8dp"
+                android:id="@+id/live_userinfo_userid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/live_userinfo_username_prefix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="Your UserName :"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/live_userinfo_userid_prefix" />
+
+            <TextView
+                android:layout_margin="8dp"
+                android:id="@+id/live_userinfo_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="@color/white" />
+
+
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_marginHorizontal="@dimen/_20dp"
+            android:layout_above="@+id/startLiveAudioroom"
+            android:id="@+id/start_live_streaming"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_gravity="center_horizontal"
+            style="@style/Widget.Material3.Button.ElevatedButton"
+            android:backgroundTint="@color/pink_top"
+            android:textColor="@color/white"
+            android:layout_marginTop="8dp"
+            android:text="Go Video Live" />
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_marginHorizontal="@dimen/_20dp"
+            android:layout_marginBottom="@dimen/_10dp"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/startLiveAudioroom"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_gravity="center_horizontal"
+            style="@style/Widget.Material3.Button.ElevatedButton"
+            android:backgroundTint="@color/btn_email"
+            android:textColor="@color/white"
+            android:layout_marginTop="8dp"
+            android:text="Go Audio Live" />
+
+        <com.google.android.material.button.MaterialButton
+            android:visibility="gone"
+            android:layout_marginHorizontal="@dimen/_20dp"
+            android:layout_marginBottom="@dimen/_10dp"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/pipButton"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_gravity="center_horizontal"
+            style="@style/Widget.Material3.Button.ElevatedButton"
+            android:backgroundTint="@color/btn_email"
+            android:textColor="@color/white"
+            android:layout_marginTop="8dp"
+            android:text="pip" />
+
+    </RelativeLayout>
+
+
+
+
+
+</FrameLayout>

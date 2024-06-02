@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_marginHorizontal="@dimen/_15dp"
+            android:layout_marginTop="@dimen/_10dp"
+            android:layout_marginBottom="@dimen/_20dp"
+            android:layout_width="match_parent"
+            android:layout_height="130dp">
+
+            <androidx.viewpager.widget.ViewPager
+                android:layout_above="@+id/dotsLayout"
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"/>
+
+            <LinearLayout
+                android:id="@+id/dotsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="@dimen/_10dp"
+                android:gravity="center"
+                android:orientation="horizontal"/>
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:layout_marginHorizontal="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Global"
+                style="@style/HeaderTextStyle"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:drawableLeft="@drawable/icons8_globe"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"/>
+
+            <ImageButton
+                android:id="@+id/ic_filter"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/filter_list"
+                android:background="@null"
+                android:layout_alignParentRight="true"
+                android:padding="8dp"/>
+
+
+        </RelativeLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerRestaurants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                android:nestedScrollingEnabled="true"
+                app:spanCount="2"
+                tools:listitem="@layout/item_active_user" />
+            <LinearLayout
+                android:layout_marginTop="@dimen/_20dp"
+                android:layout_gravity="center"
+                android:id="@+id/viewEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                tools:ignore="UseCompoundDrawables"
+                tools:visibility="gone">
+
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No online user yet"
+                    android:textColor="@color/gray" />
+
+            </LinearLayout>
+
+
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/extended_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_16dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:contentDescription="sdfjkhjkdhsfsdf"
+        android:text="Go Live"
+        android:textSize="@dimen/_18sp"
+        android:fontFamily="@font/libre_baskerville_bold"
+        android:textFontWeight="700"
+        android:textColor="@color/white"
+        app:iconTint="@color/white"
+        app:iconSize="@dimen/_26dp"
+        android:backgroundTint="@color/pink_top"
+        app:icon="@drawable/baseline_videocam_24"/>
+
+</RelativeLayout>

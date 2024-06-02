@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context=".ui.home.ui.explore.ExploreFragment">
+
+    <LinearLayout
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+    <RelativeLayout
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/pink_top">
+
+        <ImageButton
+            android:id="@+id/search_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/search"
+            android:padding="@dimen/_10dp"
+            android:background="@android:color/transparent"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            app:tint="@color/white" />
+
+
+        <TextView
+            style="@style/NormalTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:paddingLeft="@dimen/_10dp"
+            android:text="@string/explore"
+            android:textSize="20sp" />
+
+    </RelativeLayout>
+
+        <RelativeLayout
+            android:visibility="visible"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/white">
+
+
+            <TextView
+                style="@style/NormalTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:paddingLeft="@dimen/_10dp"
+                android:text="@string/explore"
+                android:textColor="@color/black"
+                android:textSize="25sp" />
+
+        </RelativeLayout>
+
+    <LinearLayout
+        android:padding="@dimen/_10dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+           <LinearLayout
+               android:layout_centerVertical="true"
+               android:gravity="center_vertical"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:orientation="horizontal">
+
+               <com.makeramen.roundedimageview.RoundedImageView
+                   app:riv_corner_radius="2dp"
+                   android:id="@+id/iv_flag"
+                   android:layout_width="@dimen/_40dp"
+                   android:layout_height="30dp"
+                   android:src="@drawable/icons8_globe"
+                   android:scaleType="fitCenter"/>
+
+               <TextView
+                   android:layout_marginLeft="5dp"
+                   android:id="@+id/txt_countryTitle"
+                   android:layout_centerVertical="true"
+                   android:layout_alignParentLeft="true"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="Global"
+                   style="@style/HeaderTextStyle"
+                   android:textColor="@color/black"
+                   android:textSize="20sp"
+                   android:drawablePadding="5dp"
+                   android:gravity="center_vertical"/>
+
+           </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/ic_filter"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/filter_list"
+                android:background="@null"
+                android:layout_alignParentRight="true"
+                android:padding="8dp"/>
+
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/space200"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:layout_marginBottom="@dimen/_10dp">
+
+            <RelativeLayout
+                android:layout_marginEnd="@dimen/space10"
+                android:layout_weight="2.1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                >
+
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/restaurantItemImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    app:riv_corner_radius="@dimen/_10dp"
+                    android:src="@drawable/ic_launcher_background"/>
+
+                <RelativeLayout
+                    android:layout_alignBottom="@id/restaurantItemImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:background="@drawable/name_bottom_view">
+
+                    <TextView
+                        android:layout_marginHorizontal="@dimen/_10dp"
+                        android:layout_centerVertical="true"
+                        android:id="@+id/restaurantItemName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_12sp"
+                        tools:text="Name" />
+
+                    <!--            <com.airbnb.lottie.LottieAnimationView-->
+                    <!--                android:layout_alignParentRight="true"-->
+                    <!--                android:id="@+id/animationView1"-->
+                    <!--                android:layout_width="@dimen/space80"-->
+                    <!--                android:layout_height="match_parent"-->
+                    <!--                app:lottie_rawRes="@raw/mus"-->
+                    <!--                app:lottie_autoPlay="true"-->
+                    <!--                app:lottie_loop="true"/>-->
+
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/name_top_view">
+
+                    <TextView
+                        android:layout_centerVertical="true"
+                        android:id="@+id/liveType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="3dp"
+                        android:textColor="@color/white"
+                        android:textSize="10sp"
+                        tools:text="Name" />
+
+                </RelativeLayout>
+
+
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_weight="0.9"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginBottom="3dp"
+                    >
+
+                    <com.makeramen.roundedimageview.RoundedImageView
+                        android:id="@+id/restaurantItemImage1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        app:riv_corner_radius="@dimen/_10dp"
+                        android:src="@drawable/ic_launcher_background"/>
+
+                    <RelativeLayout
+                        android:layout_alignBottom="@id/restaurantItemImage1"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_25"
+                        android:background="@drawable/name_bottom_view">
+
+                        <TextView
+                            android:layout_marginHorizontal="@dimen/_10dp"
+                            android:layout_centerVertical="true"
+                            android:id="@+id/restaurantItemName1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_10sp"
+                            tools:text="Name" />
+
+                        <!--            <com.airbnb.lottie.LottieAnimationView-->
+                        <!--                android:layout_alignParentRight="true"-->
+                        <!--                android:id="@+id/animationView1"-->
+                        <!--                android:layout_width="@dimen/space80"-->
+                        <!--                android:layout_height="match_parent"-->
+                        <!--                app:lottie_rawRes="@raw/mus"-->
+                        <!--                app:lottie_autoPlay="true"-->
+                        <!--                app:lottie_loop="true"/>-->
+
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/name_top_view">
+
+                        <TextView
+                            android:layout_centerVertical="true"
+                            android:id="@+id/liveType1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:textColor="@color/white"
+                            android:textSize="10sp"
+                            tools:text="Name" />
+
+                    </RelativeLayout>
+
+
+
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="@dimen/space3"
+                    >
+
+                    <com.makeramen.roundedimageview.RoundedImageView
+                        android:id="@+id/restaurantItemImage2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        app:riv_corner_radius="@dimen/_10dp"
+                        android:src="@drawable/ic_launcher_background"/>
+
+                    <RelativeLayout
+                        android:layout_alignBottom="@id/restaurantItemImage2"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_25"
+                        android:background="@drawable/name_bottom_view">
+
+                        <TextView
+                            android:layout_marginHorizontal="@dimen/_10dp"
+                            android:layout_centerVertical="true"
+                            android:id="@+id/restaurantItemName2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_10sp"
+                            tools:text="Name" />
+
+                        <!--            <com.airbnb.lottie.LottieAnimationView-->
+                        <!--                android:layout_alignParentRight="true"-->
+                        <!--                android:id="@+id/animationView1"-->
+                        <!--                android:layout_width="@dimen/space80"-->
+                        <!--                android:layout_height="match_parent"-->
+                        <!--                app:lottie_rawRes="@raw/mus"-->
+                        <!--                app:lottie_autoPlay="true"-->
+                        <!--                app:lottie_loop="true"/>-->
+
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/name_top_view">
+
+                        <TextView
+                            android:layout_centerVertical="true"
+                            android:id="@+id/liveType2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:textColor="@color/white"
+                            android:textSize="10sp"
+                            tools:text="Name" />
+
+                    </RelativeLayout>
+
+
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:visibility="visible"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:layout_marginBottom="@dimen/_10dp">
+
+            <androidx.viewpager.widget.ViewPager
+                android:layout_above="@+id/dotsLayout"
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"/>
+
+            <LinearLayout
+                android:id="@+id/dotsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="@dimen/_10dp"
+                android:gravity="center"
+                android:orientation="horizontal"/>
+
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:id="@+id/topRank"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_marginRight="@dimen/_5dp"
+                android:background="@drawable/top_ranking_bg"
+                android:layout_height="@dimen/space70">
+
+                <ImageView
+                    android:padding="@dimen/_10dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_width="@dimen/space90"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/top_ranking"
+                    android:scaleType="fitCenter"/>
+
+                <TextView
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/_20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Top\nRank"
+                    style="@style/HeaderTextStyle"/>
+
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/gameButton"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_marginLeft="@dimen/_5dp"
+                android:background="@drawable/game_bg"
+                android:layout_height="@dimen/space70">
+
+                <ImageView
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_width="@dimen/space90"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/game_boy"
+                    android:scaleType="centerCrop"/>
+
+                <TextView
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/_20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Games"
+                    style="@style/HeaderTextStyle"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_marginTop="@dimen/_8dp"
+                android:id="@+id/recyclerRestaurants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                android:nestedScrollingEnabled="true"
+                app:spanCount="2"
+                tools:listitem="@layout/item_active_user" />
+            <LinearLayout
+                android:layout_marginTop="@dimen/_20dp"
+                android:layout_gravity="center"
+                android:id="@+id/viewEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                tools:ignore="UseCompoundDrawables"
+                tools:visibility="gone">
+
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No online user yet"
+                    android:textColor="@color/gray" />
+
+            </LinearLayout>
+
+
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+    </LinearLayout>
+
+
+</androidx.core.widget.NestedScrollView>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Permissions required by the SDK -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" /> <!-- Permissions required by the Demo App -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <application
+        android:name=".global.ApplicationClass"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/app_icons"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/app_icons"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.DonaLive"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
+        <activity
+            android:name=".ui.lucky_game.DiceRoller.DiceRollerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.lucky_game.HeadsOrTails.HeadsOrTailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.lucky_game.TruthOrDare.TruthOrDareActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.lucky_game.GameLuckyActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.toplist.activity.TopUsersSendReceiveCoinsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.toplist.TopListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.home.ui.profile.activity.LevelActivity"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_launcher_background" />
+        <!--
+ Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more.
+        -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" /> <!-- [END fcm_default_icon] -->
+        <!-- [START fcm_default_channel] -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" /> <!-- [END fcm_default_channel] -->
+        <activity
+            android:name=".ui.chat.activity.ConversationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.follow.activity.FollowFollowingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.vip.TopUpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.vip.VIPActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.home.ui.profile.activity.LiveHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.home.ui.profile.activity.HostRegistrationFormActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.follow.activity.UserInfoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.home.ui.profile.activity.UpdateUserDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.home.ui.profile.activity.EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.search.activity.SearchUserActivity"
+            android:exported="false" />
+        <activity
+            android:name=".streaming.activity.CallInvitationActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".streaming.activity.CallWaitActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".streaming.activity.LiveAudioRoomActivity"
+            android:exported="false"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".streaming.activity.LiveStreamingActivity"
+            android:exported="false"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.auth.activity.OtpVerificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.auth.activity.PhoneActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.home.HomeActivity"
+            android:exported="false"
+            android:label="@string/title_activity_home"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.common.BaseActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.auth.activity.RegisterActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.auth.activity.LoginActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.startup.activity.OnboardingActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.startup.activity.SplashActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.activity.MainActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name=".streaming.components.call.CallBackgroundService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".notification.MyService"
+            android:enabled="true"
+            android:exported="false" /> <!-- <service -->
+        <!-- android:name=".ui.services.MyDownloadService" -->
+        <!-- android:exported="false"/> -->
+        <!-- <service -->
+        <!-- android:name=".ui.services.MyUploadService" -->
+        <!-- android:exported="false" /> -->
+        <activity
+            android:name=".streaming.components.call.IncomingCallDialog"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/dialogActivityTheme" />
+
+        <meta-data
+            android:name="android.app.lib_name"
+            android:value="" /> <!-- [START firebase_service] -->
+        <service
+            android:name=".notification.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

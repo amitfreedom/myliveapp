@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="country">
+        <item>Select Country</item>
+        <item>India</item>
+        <item>USA</item>
+        <item>UK</item>
+
+
+    </string-array>
+
+    <string-array name="gift_count">
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
+        <item>50</item>
+        <item>99</item>
+
+
+    </string-array>
+</resources>
