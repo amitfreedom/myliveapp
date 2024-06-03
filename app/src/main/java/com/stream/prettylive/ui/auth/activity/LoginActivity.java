@@ -9,6 +9,8 @@ import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -38,6 +40,8 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.stream.prettylive.R;
 import com.stream.prettylive.databinding.ActivityLoginBinding;
+import com.stream.prettylive.ui.auth.models.UserResponseModel;
+import com.stream.prettylive.ui.auth.viewmodel.UserViewModel;
 import com.stream.prettylive.ui.common.GenerateUserId;
 import com.stream.prettylive.ui.home.HomeActivity;
 
@@ -48,6 +52,8 @@ import java.util.Map;
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginBinding binding;
+    private UserViewModel userViewModel;
+
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseAuth mAuth;
     private SignInClient signInClient;
@@ -70,6 +76,8 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mAuth = FirebaseAuth.getInstance();
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
         // Configure Google Sign In
         signInClient = Identity.getSignInClient(LoginActivity.this);
         progressDialog= new ProgressDialog(this);
@@ -93,7 +101,10 @@ public class LoginActivity extends AppCompatActivity {
                 if (email.isEmpty() || password.isEmpty()){
                     Toast.makeText(LoginActivity.this, "Please enter email and password.", Toast.LENGTH_SHORT).show();
                 }else {
-                    signIn(email, password);
+
+                    loginUser(email,password);
+
+//                    signIn(email, password);
                 }
 
             }
@@ -109,6 +120,19 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 googleSignIn();
+            }
+        });
+    }
+
+    private void loginUser(String email, String password) {
+        userViewModel.login(email, password).observe(LoginActivity.this, new Observer<UserResponseModel>() {
+            @Override
+            public void onChanged(UserResponseModel user) {
+                if (user != null) {
+                    Toast.makeText(LoginActivity.this, ""+user.getMsg(), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(LoginActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

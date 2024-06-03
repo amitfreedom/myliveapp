@@ -1,6 +1,8 @@
 package com.stream.prettylive.ui.auth.activity;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -22,6 +24,8 @@ import com.stream.prettylive.R;
 import com.stream.prettylive.databinding.ActivityRegisterBinding;
 import com.stream.prettylive.global.AppConstants;
 import com.stream.prettylive.global.ApplicationClass;
+import com.stream.prettylive.ui.auth.models.UserResponseModel;
+import com.stream.prettylive.ui.auth.viewmodel.UserViewModel;
 import com.stream.prettylive.ui.common.BaseActivity;
 import com.stream.prettylive.ui.common.GenerateUserId;
 import com.stream.prettylive.ui.home.HomeActivity;
@@ -33,6 +37,8 @@ import java.util.Map;
 public class RegisterActivity extends BaseActivity {
     private static final String TAG = "RegisterActivity";
     private ActivityRegisterBinding binding;
+    private UserViewModel userViewModel;
+
     private FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
     private ProgressDialog progressDialog;
@@ -44,6 +50,8 @@ public class RegisterActivity extends BaseActivity {
         binding = ActivityRegisterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mAuth = FirebaseAuth.getInstance();
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
         firestore = FirebaseFirestore.getInstance();
         progressDialog= new ProgressDialog(this);
         progressDialog.setMessage("Please wait...");
@@ -66,24 +74,38 @@ public class RegisterActivity extends BaseActivity {
                 String password = binding.txtPassword.getText().toString().trim();
                 String confirm_password = binding.txtConfirmPassword.getText().toString().trim();
 
-                if (username.isEmpty()) {
-                    Toast.makeText(RegisterActivity.this, "Please enter username.", Toast.LENGTH_SHORT).show();
-                }
-                else if (emailAddress.isEmpty()) {
-                    Toast.makeText(RegisterActivity.this, "Email address can't be empty.", Toast.LENGTH_SHORT).show();
+//                if (username.isEmpty()) {
+//                    Toast.makeText(RegisterActivity.this, "Please enter username.", Toast.LENGTH_SHORT).show();
+//                }
+//                else if (emailAddress.isEmpty()) {
+//                    Toast.makeText(RegisterActivity.this, "Email address can't be empty.", Toast.LENGTH_SHORT).show();
+//
+//                } else if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
+//                    Toast.makeText(RegisterActivity.this, "Please enter valid email address", Toast.LENGTH_SHORT).show();
+//                } else if (phone.isEmpty()) {
+//                    Toast.makeText(RegisterActivity.this, "Please enter phone number", Toast.LENGTH_SHORT).show();
+//                } else if (password.isEmpty()) {
+//                    Toast.makeText(RegisterActivity.this, "Please enter password", Toast.LENGTH_SHORT).show();
+//                }else if (!password.equals(confirm_password)) {
+//                    Toast.makeText(RegisterActivity.this, "Password is mismatch please check once", Toast.LENGTH_SHORT).show();
+//                } else {
+                    signUp(emailAddress,password);
+//                    createAccount(emailAddress, password);
+//                }
 
-                } else if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
-                    Toast.makeText(RegisterActivity.this, "Please enter valid email address", Toast.LENGTH_SHORT).show();
-                } else if (phone.isEmpty()) {
-                    Toast.makeText(RegisterActivity.this, "Please enter phone number", Toast.LENGTH_SHORT).show();
-                } else if (password.isEmpty()) {
-                    Toast.makeText(RegisterActivity.this, "Please enter password", Toast.LENGTH_SHORT).show();
-                }else if (!password.equals(confirm_password)) {
-                    Toast.makeText(RegisterActivity.this, "Password is mismatch please check once", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void signUp(String emailAddress, String password) {
+        userViewModel.signUp("test@gmail.com", "test", "deviceId", "deviceToken").observe(RegisterActivity.this, new Observer<UserResponseModel>() {
+            @Override
+            public void onChanged(UserResponseModel user) {
+                if (user != null) {
+                    Toast.makeText(RegisterActivity.this, "Sign Up Successful! Welcome", Toast.LENGTH_SHORT).show();
                 } else {
-                    createAccount(emailAddress, password);
+                    Toast.makeText(RegisterActivity.this, "Sign Up Failed", Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
     }
