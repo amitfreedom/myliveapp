@@ -40,6 +40,8 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.stream.prettylive.R;
 import com.stream.prettylive.databinding.ActivityLoginBinding;
+import com.stream.prettylive.global.AppConstants;
+import com.stream.prettylive.global.ApplicationClass;
 import com.stream.prettylive.ui.auth.models.UserResponseModel;
 import com.stream.prettylive.ui.auth.viewmodel.UserViewModel;
 import com.stream.prettylive.ui.common.GenerateUserId;
@@ -87,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
         // Display One-Tap Sign In if user isn't logged in
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-            oneTapSignIn();
+//            oneTapSignIn();
         }
     }
 
@@ -125,10 +127,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser(String email, String password) {
+        progressDialog.show();
         userViewModel.login(email, password).observe(LoginActivity.this, new Observer<UserResponseModel>() {
             @Override
             public void onChanged(UserResponseModel user) {
+                progressDialog.dismiss();
                 if (user != null) {
+//                    ApplicationClass.getSharedpref().saveModel(AppConstants.LOGIN_DATA, user.getData().getUser());
+                    ApplicationClass.getSharedpref().saveString(AppConstants.TOKEN, user.getData().getToken());
                     Toast.makeText(LoginActivity.this, ""+user.getMsg(), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(LoginActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();

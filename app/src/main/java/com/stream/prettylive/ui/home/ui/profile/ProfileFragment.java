@@ -7,6 +7,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,12 +37,15 @@ import com.stream.prettylive.game.teenpatty.models.GameList;
 import com.stream.prettylive.global.AppConstants;
 import com.stream.prettylive.global.ApplicationClass;
 import com.stream.prettylive.streaming.internal.ZEGOLiveAudioRoomManager;
+import com.stream.prettylive.ui.auth.models.UserMainResponse;
+import com.stream.prettylive.ui.auth.viewmodel.UserViewModel;
 import com.stream.prettylive.ui.follow.activity.FollowFollowingActivity;
 import com.stream.prettylive.ui.follow.methods.FirestoreHelper;
 import com.stream.prettylive.ui.home.ui.profile.activity.HostRegistrationFormActivity;
 import com.stream.prettylive.ui.home.ui.profile.activity.LevelActivity;
 import com.stream.prettylive.ui.home.ui.profile.activity.LiveHistoryActivity;
 import com.stream.prettylive.ui.home.ui.profile.activity.UpdateUserDetailsActivity;
+import com.stream.prettylive.ui.home.ui.profile.models.MasterModel;
 import com.stream.prettylive.ui.home.ui.profile.models.UserDetailsModel;
 import com.stream.prettylive.ui.lucky_game.GameLuckyActivity;
 import com.stream.prettylive.ui.startup.activity.OnboardingActivity;
@@ -62,12 +68,15 @@ public class ProfileFragment extends Fragment {
     private CollectionReference usersRef;
     private FirebaseAuth mAuth;
     private UserDetailsModel userDetails;
+    private UserViewModel userViewModel;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         return root;
     }
@@ -80,12 +89,39 @@ public class ProfileFragment extends Fragment {
         usersRef = db.collection(Constant.LOGIN_DETAILS);
 
         init();
+        getUserDataApi();
         fetchFollowingUserList();
         fetchFollowersUserList();
         fetchUserDetails(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
 
-//        updateLevel(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID),50000,1);
+//        SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your refresh code here
+                getUserDataApi();
+                // Once the refresh is complete, call this to stop the refreshing indicator
+                binding.swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
 
+    private void getUserDataApi() {
+        binding.swipeRefreshLayout.setRefreshing(true);
+        int masterId = Integer.parseInt("111113");
+        userViewModel.getMaster(masterId).observe(requireActivity(), new Observer<MasterModel>() {
+            @Override
+            public void onChanged(MasterModel master) {
+                if (master != null) {
+//                    ApplicationClass.getSharedpref().saveModel(AppConstants.USER_DETAILS, master.getData());
+                    binding.swipeRefreshLayout.setRefreshing(false);
+                } else {
+                    binding.swipeRefreshLayout.setRefreshing(false);
+                    Toast.makeText(requireActivity(), "Master Not Found", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        });
     }
 
     // In your activity or fragment

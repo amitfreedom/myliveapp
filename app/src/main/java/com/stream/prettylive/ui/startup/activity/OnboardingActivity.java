@@ -11,6 +11,8 @@ import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
@@ -35,6 +37,10 @@ import com.google.android.gms.auth.api.identity.GetSignInIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.auth.api.identity.SignInCredential;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -59,6 +65,8 @@ import com.stream.prettylive.streaming.internal.utils.ToastUtil;
 import com.stream.prettylive.ui.auth.activity.LoginActivity;
 //import com.stream.prettylive.ui.auth.activity.PhoneActivity;
 import com.stream.prettylive.ui.auth.activity.OtpVerificationActivity;
+import com.stream.prettylive.ui.auth.models.UserResponseModel;
+import com.stream.prettylive.ui.auth.viewmodel.UserViewModel;
 import com.stream.prettylive.ui.common.GenerateUserId;
 import com.stream.prettylive.ui.home.HomeActivity;
 import com.stream.prettylive.ui.home.ui.profile.models.UserDetailsModel;
@@ -70,6 +78,9 @@ import java.util.Map;
 import java.util.Objects;
 
 public class OnboardingActivity extends AppCompatActivity {
+    private static final int RC_SIGN_IN = 9001;
+    private UserViewModel userViewModel;
+
     private static final String TAG = "OnboardingActivity";
     private ActivityOnboardingBinding binding;
     Animation bottomAnimation,middleAnimation;
@@ -79,6 +90,7 @@ public class OnboardingActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private boolean isDisable=false;
     private String reg_id="";
+    GoogleSignInClient mGoogleSignInClient;
 
 
     private final ActivityResultLauncher<IntentSenderRequest> signInLauncher = registerForActivityResult(
@@ -95,10 +107,17 @@ public class OnboardingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityOnboardingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         mAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         bottomAnimation = AnimationUtils.loadAnimation(this, R.anim.bottom_animantion);
+        // Inside your Activity or Fragment
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         // Configure Google Sign In
         signInClient = Identity.getSignInClient(OnboardingActivity.this);
         progressDialog= new ProgressDialog(this);
@@ -118,6 +137,8 @@ public class OnboardingActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 googleSignIn();
+//                googleSignIn1();
+
             }
         });
 
@@ -145,6 +166,11 @@ public class OnboardingActivity extends AppCompatActivity {
 
 
 
+    }
+
+    private void googleSignIn1() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     private void googleSignIn() {
@@ -421,4 +447,39 @@ public class OnboardingActivity extends AppCompatActivity {
         super.onDestroy();
         binding = null;
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            String email = account.getEmail();
+            String id = account.getId();
+            String image = String.valueOf(account.getPhotoUrl());
+
+
+            userViewModel.googleLogin("","","","","").observe(OnboardingActivity.this, new Observer<UserResponseModel>() {
+                @Override
+                public void onChanged(UserResponseModel user) {
+                    if (user != null) {
+//                        textView.setText("Google Login Successful! Welcome " + user.getName());
+                    } else {
+//                        textView.setText("Google Login Failed");
+                    }
+                }
+            });
+
+        } catch (ApiException e) {
+            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
+        }
+    }
+
 }

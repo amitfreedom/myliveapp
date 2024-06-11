@@ -4,15 +4,21 @@ import static com.stream.prettylive.ui.utill.ImageUtils.uriToBitmap;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -33,10 +39,20 @@ import com.stream.prettylive.R;
 import com.stream.prettylive.databinding.ActivityUpdateUserDetailsBinding;
 import com.stream.prettylive.global.AppConstants;
 import com.stream.prettylive.global.ApplicationClass;
+import com.stream.prettylive.global.ImageUploader;
+import com.stream.prettylive.streaming.internal.utils.ToastUtil;
+import com.stream.prettylive.ui.auth.models.UserMainResponse;
+import com.stream.prettylive.ui.auth.models.UserResponseModel;
+import com.stream.prettylive.ui.auth.viewmodel.UserViewModel;
+import com.stream.prettylive.ui.home.ui.profile.models.MasterModel;
+import com.stream.prettylive.ui.home.ui.profile.models.UpdateUserRequest;
 import com.stream.prettylive.ui.home.ui.profile.models.UserDetailsModel;
+import com.stream.prettylive.ui.home.ui.profile.models.UserUpdateResponseModel;
 import com.stream.prettylive.ui.utill.Constant;
+import com.stream.prettylive.ui.utill.DeviceUtils;
 import com.stream.prettylive.ui.utill.ImageUtils;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -45,13 +61,17 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
 
     private static final String TAG = "UpdateUserDetailsActivi";
     private ActivityUpdateUserDetailsBinding binding;
+    private UserViewModel userViewModel;
+
     private FirebaseFirestore db;
     private CollectionReference usersRef;
     private FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
     private UserDetailsModel userDetails;
+    private String device_token ="";
     private ActivityResultLauncher<String[]> intentLauncher;
     private ProgressDialog progressDialog;
+    private MasterModel masterModel;
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -69,6 +89,7 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
         super.onCreate(savedInstanceState);
         binding = ActivityUpdateUserDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -76,33 +97,54 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
 
         binding.buttonCamera.setOnClickListener(this);
 
-        intentLauncher = registerForActivityResult(
-                new ActivityResultContracts.OpenDocument(), fileUri -> {
-                    if (fileUri != null) {
-                        showProgressBar();
-                        Bitmap bitmap = uriToBitmap(this, fileUri);
-                        if (bitmap != null) {
-                            new ImageUtils(new ImageUtils.Select() {
-                                @Override
-                                public void success(int value) {
-                                    hideProgressBar();
-                                    if(value==1){
-                                        Toast.makeText(UpdateUserDetailsActivity.this, "Profile image has been updated successfully", Toast.LENGTH_SHORT).show();
-                                    }else {
-                                        Toast.makeText(UpdateUserDetailsActivity.this, "Somethings went wrong", Toast.LENGTH_SHORT).show();
+//        intentLauncher = registerForActivityResult(
+//                new ActivityResultContracts.OpenDocument(), fileUri -> {
+//                    if (fileUri != null) {
+//
+//                        showProgressBar();
+//                        Bitmap bitmap = uriToBitmap(this, fileUri);
+//                        if (bitmap != null) {
+//                            new ImageUtils(new ImageUtils.Select() {
+//                                @Override
+//                                public void success(int value) {
+//                                    hideProgressBar();
+//                                    if(value==1){
+//                                        Toast.makeText(UpdateUserDetailsActivity.this, "Profile image has been updated successfully", Toast.LENGTH_SHORT).show();
+//                                    }else {
+//                                        Toast.makeText(UpdateUserDetailsActivity.this, "Somethings went wrong", Toast.LENGTH_SHORT).show();
+//                                    }
+//                                }
+//                            }).uploadImageToFirestore(bitmap);
+//                        } else {
+//                            Log.w(TAG, "Bitmap is null");
+//                        }
+//                    } else {
+//                        Log.w(TAG, "File URI is null");
+//                    }
+//                });
 
-                                    }
-                                }
-                            }).uploadImageToFirestore(bitmap);
-                        } else {
-                            Log.w(TAG, "Bitmap is null");
-                        }
-                    } else {
-                        Log.w(TAG, "File URI is null");
-                    }
-                });
+//        intentLauncher = registerForActivityResult(
+//                new ActivityResultContracts.OpenDocument(), fileUri -> {
+//                    if (fileUri != null) {
+////                        showProgressBar();
+//                        userViewModel.updateProfileImage(111113, fileUri, this).observe(UpdateUserDetailsActivity.this, new Observer<UserMainResponse>() {
+//                            @Override
+//                            public void onChanged(UserMainResponse user) {
+//                                if (user != null) {
+//                                    Toast.makeText(UpdateUserDetailsActivity.this, ""+user.getMsg(), Toast.LENGTH_SHORT).show();
+////                                        textView.setText("Profile Image Updated for: " + user.getName());
+//                                } else {
+////                                        textView.setText("Profile Image Update Failed");
+//                                }
+//                            }
+//                        });
+//                    }
+//                });
 
+        getUserDataApi();
         askNotificationPermission();
+
+
 
         fetchUserDetails(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
 
@@ -119,6 +161,34 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
             @Override
             public void onClick(View v) {
                 onBackPressed();
+            }
+        });
+
+        DeviceUtils.getDeviceToken(new DeviceUtils.TokenFetchListener() {
+            @Override
+            public void onTokenFetchSuccess(String token) {
+                device_token=token;
+            }
+
+            @Override
+            public void onTokenFetchFailure(Exception e) {
+                device_token="";
+            }
+        });
+    }
+
+    private void getUserDataApi() {
+        int masterId = Integer.parseInt("111113");
+        userViewModel.getMaster(masterId).observe(UpdateUserDetailsActivity.this, new Observer<MasterModel>() {
+            @Override
+            public void onChanged(MasterModel master) {
+                if (master != null) {
+                    masterModel=master;
+//                    ApplicationClass.getSharedpref().saveModel(AppConstants.USER_DETAILS, master.getData());
+                } else {
+                    Toast.makeText(UpdateUserDetailsActivity.this, "Master Not Found", Toast.LENGTH_SHORT).show();
+
+                }
             }
         });
     }
@@ -151,12 +221,36 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
             @Override
             public void onClick(View v) {
                 showProgressBar();
-                updateUserName(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID),etName.getText().toString().trim(),bottomSheetDialog);
+                updateUserDetails(etName.getText().toString(),bottomSheetDialog);
+//                updateUserName(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID),etName.getText().toString().trim(),bottomSheetDialog);
             }
         });
 
         bottomSheetDialog.show();
 //        bottomSheetDialog.dismiss();
+    }
+
+
+
+    private void updateUserDetails(String userNickName, BottomSheetDialog bottomSheetDialog) {
+
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest(userNickName, masterModel.getData().getEmail(), masterModel.getData().getUid(), true, device_token, DeviceUtils.getDeviceId(UpdateUserDetailsActivity.this), userNickName);
+
+        userViewModel.updateUser("66641831ee9de77678c2c01c", updateUserRequest).observe(UpdateUserDetailsActivity.this, new Observer<UserUpdateResponseModel>() {
+            @Override
+            public void onChanged(UserUpdateResponseModel user) {
+                hideProgressBar();
+                bottomSheetDialog.dismiss();
+                if (user != null) {
+                    Toast.makeText(UpdateUserDetailsActivity.this, ""+user.getData().getUserNickName(), Toast.LENGTH_SHORT).show();
+//                    textView.setText("User Updated: " + user.getName());
+                } else {
+                    Toast.makeText(UpdateUserDetailsActivity.this, "error", Toast.LENGTH_SHORT).show();
+
+//                    textView.setText("User Update Failed");
+                }
+            }
+        });
     }
 
     private void updateUserName(String userId, String name, BottomSheetDialog bottomSheetDialog) {
@@ -218,12 +312,12 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
     private void askNotificationPermission() {
         // This is only necessary for API level >= 33 (TIRAMISU)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) ==
                     PackageManager.PERMISSION_GRANTED) {
                 // Your app can post notifications.
             } else{
                 // Directly ask for the permission
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
             }
         }
     }
@@ -293,9 +387,46 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
     }
 
     private void launchCamera() {
-        Log.d(TAG, "launchCamera");
+//        Log.d(TAG, "launchCamera");
+//
+//        // Pick an image from storage
+//        intentLauncher.launch(new String[]{ "image/*" });
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1);
+    }
 
-        // Pick an image from storage
-        intentLauncher.launch(new String[]{ "image/*" });
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            // Compare the requestCode with the constant
+            if (requestCode == 1) {
+                // Get the Uri of the selected image from data
+                assert data != null;
+                Uri selectedImageUri = data.getData();
+                if (selectedImageUri != null) {
+                    File file1 = new File(Objects.requireNonNull(selectedImageUri.getPath()));
+                    new ImageUploader().updateImage(file1,"111113");
+                    // Update the ImageView with the selected image
+
+//                    showProgressBar();
+//                    userViewModel.updateProfileImage(111113, selectedImageUri, this).observe(UpdateUserDetailsActivity.this, new Observer<UserMainResponse>() {
+//                        @Override
+//                        public void onChanged(UserMainResponse user) {
+//                            if (user != null) {
+//                                Toast.makeText(UpdateUserDetailsActivity.this, ""+user.getMsg(), Toast.LENGTH_SHORT).show();
+////                                        textView.setText("Profile Image Updated for: " + user.getName());
+//                            } else {
+//                                Toast.makeText(UpdateUserDetailsActivity.this, "error", Toast.LENGTH_SHORT).show();
+//
+////                                        textView.setText("Profile Image Update Failed");
+//                            }
+//                        }
+//                    });
+                }
+            }
+        }
     }
 }
