@@ -108,18 +108,29 @@ public class SplashActivity extends AppCompatActivity {
 //                    return;
 //                }
 
-                if (user == null) {
+                if (Objects.equals(ApplicationClass.getSharedpref().getString(AppConstants.TOKEN), "")){
                     Intent intent = new Intent(SplashActivity.this, OnboardingActivity.class);
                     startActivity(intent);
                     finish();
-                }
-                else {
-                    ApplicationClass.getSharedpref().saveString(AppConstants.USER_ID, user.getUid());
+                }else {
                     Intent mainIntent = new Intent(SplashActivity.this, HomeActivity.class);
                     mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(mainIntent);
                     finish();
                 }
+
+//                if (user == null) {
+//                    Intent intent = new Intent(SplashActivity.this, OnboardingActivity.class);
+//                    startActivity(intent);
+//                    finish();
+//                }
+//                else {
+//                    ApplicationClass.getSharedpref().saveString(AppConstants.USER_ID, user.getUid());
+//                    Intent mainIntent = new Intent(SplashActivity.this, HomeActivity.class);
+//                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                    startActivity(mainIntent);
+//                    finish();
+//                }
             }
         }, 3000);
 

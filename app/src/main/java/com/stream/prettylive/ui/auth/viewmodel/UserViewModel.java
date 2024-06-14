@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 import com.stream.prettylive.services.repository.UserRepository;
 import com.stream.prettylive.ui.auth.models.UserMainResponse;
 import com.stream.prettylive.ui.auth.models.UserResponseModel;
+import com.stream.prettylive.ui.home.ui.profile.models.FetchImageResponseModel;
 import com.stream.prettylive.ui.home.ui.profile.models.MasterModel;
 import com.stream.prettylive.ui.home.ui.profile.models.UpdateUserRequest;
 import com.stream.prettylive.ui.home.ui.profile.models.UserUpdateResponseModel;
@@ -43,7 +44,7 @@ public class UserViewModel extends ViewModel {
         return repository.getUser(id);
     }
 
-    public LiveData<UserMainResponse> updateProfileImage(int id, Uri filePath, Context context) {
+    public LiveData<FetchImageResponseModel> updateProfileImage(String id, Uri filePath, Context context) throws Exception {
         return repository.updateProfileImage(id, filePath, context);
     }
 

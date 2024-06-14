@@ -67,7 +67,6 @@ import com.stream.prettylive.streaming.activity.model.ChatMessageModel;
 import com.stream.prettylive.streaming.activity.model.GiftModel;
 import com.stream.prettylive.streaming.activity.model.PurchageGiftModel;
 import com.stream.prettylive.streaming.activity.model.RoomUsers;
-import com.stream.prettylive.streaming.components.message.barrage.BottomInputDialog;
 import com.stream.prettylive.streaming.components.message.barrage.BottomInputDialogMessage;
 import com.stream.prettylive.streaming.functions.AddStreamInfo;
 import com.stream.prettylive.streaming.functions.CurrentUserInfo;

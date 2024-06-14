@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.stream.prettylive.global.FileUtils;
 import com.stream.prettylive.services.ApiService;
 import com.stream.prettylive.services.RetrofitClient;
 import com.stream.prettylive.ui.auth.models.GoogleLoginRequest;
@@ -14,6 +15,7 @@ import com.stream.prettylive.ui.auth.models.LoginRequest;
 import com.stream.prettylive.ui.auth.models.SignUpRequest;
 import com.stream.prettylive.ui.auth.models.UserMainResponse;
 import com.stream.prettylive.ui.auth.models.UserResponseModel;
+import com.stream.prettylive.ui.home.ui.profile.models.FetchImageResponseModel;
 import com.stream.prettylive.ui.home.ui.profile.models.MasterModel;
 import com.stream.prettylive.ui.home.ui.profile.models.UpdateUserRequest;
 import com.stream.prettylive.ui.home.ui.profile.models.UserUpdateResponseModel;
@@ -135,21 +137,16 @@ public class UserRepository {
         return data;
     }
 
-    public LiveData<UserMainResponse> updateProfileImage(int id, Uri filePath, Context context) {
-        final MutableLiveData<UserMainResponse> data = new MutableLiveData<>();
-        File file = new File(filePath.getPath());
+    public LiveData<FetchImageResponseModel> updateProfileImage(String id, Uri fileUri, Context context) throws Exception {
+        final MutableLiveData<FetchImageResponseModel> data = new MutableLiveData<>();
+        File file = FileUtils.getFileFromUri(context, fileUri);
 
-        RequestBody requestFile = RequestBody.create(
-                MediaType.parse(Objects.requireNonNull(context.getContentResolver().getType(filePath))),
-                file
-        );
-//        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-
+        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
-        apiService.updateProfileImage(id, body).enqueue(new Callback<UserMainResponse>() {
+        apiService.updateProfileImage(id, body).enqueue(new Callback<FetchImageResponseModel>() {
             @Override
-            public void onResponse(@NonNull Call<UserMainResponse> call, @NonNull Response<UserMainResponse> response) {
+            public void onResponse(@NonNull Call<FetchImageResponseModel> call, @NonNull Response<FetchImageResponseModel> response) {
                 if (response.isSuccessful()) {
                     data.setValue(response.body());
                 } else {
@@ -158,7 +155,7 @@ public class UserRepository {
             }
 
             @Override
-            public void onFailure(@NonNull Call<UserMainResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<FetchImageResponseModel> call, @NonNull Throwable t) {
                 data.setValue(null);
             }
         });

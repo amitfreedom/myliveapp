@@ -18,6 +18,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -67,16 +70,22 @@ public class ProfileFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference usersRef;
     private FirebaseAuth mAuth;
+    GoogleSignInClient mGoogleSignInClient;
     private UserDetailsModel userDetails;
     private UserViewModel userViewModel;
+    private String uid="";
+
+    private MasterModel masterModel;
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
+        uid = ApplicationClass.getSharedpref().getString(AppConstants.UID);
 
         return root;
     }
@@ -84,12 +93,19 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
+
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         usersRef = db.collection(Constant.LOGIN_DETAILS);
 
         init();
-        getUserDataApi();
+        getUserDataApi(uid);
         fetchFollowingUserList();
         fetchFollowersUserList();
         fetchUserDetails(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
@@ -99,26 +115,31 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onRefresh() {
                 // Your refresh code here
-                getUserDataApi();
+                getUserDataApi(uid);
                 // Once the refresh is complete, call this to stop the refreshing indicator
                 binding.swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
-    private void getUserDataApi() {
+    private void getUserDataApi(String uid) {
         binding.swipeRefreshLayout.setRefreshing(true);
-        int masterId = Integer.parseInt("111113");
+        int masterId = Integer.parseInt(uid);
         userViewModel.getMaster(masterId).observe(requireActivity(), new Observer<MasterModel>() {
             @Override
             public void onChanged(MasterModel master) {
                 if (master != null) {
-//                    ApplicationClass.getSharedpref().saveModel(AppConstants.USER_DETAILS, master.getData());
+                    masterModel = master;
+                    updateUI1(master);
                     binding.swipeRefreshLayout.setRefreshing(false);
                 } else {
                     binding.swipeRefreshLayout.setRefreshing(false);
-                    Toast.makeText(requireActivity(), "Master Not Found", Toast.LENGTH_SHORT).show();
 
+
+                }
+                assert master != null;
+                if (master.getShow()) {
+                    Toast.makeText(requireActivity(), master.getMsg(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -182,43 +203,48 @@ public class ProfileFragment extends Fragment {
         binding.btnGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent;
-                intent = new Intent(getActivity().getApplication(), GameLuckyActivity.class);
-                startActivity(intent);
+//                Intent intent;
+//                intent = new Intent(getActivity().getApplication(), GameLuckyActivity.class);
+//                startActivity(intent);
 //                gameListPopup();
             }
         });
         binding.btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAuth.signOut();
+//                mAuth.signOut();
+                mGoogleSignInClient.signOut();
+                ApplicationClass.getSharedpref().clearPreferences();
                 Intent mainIntent = new Intent(getActivity(), OnboardingActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(mainIntent);
-                getActivity().finish();
+                requireActivity().finish();
             }
         });
         binding.btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent mainIntent = new Intent(getActivity(), UpdateUserDetailsActivity.class);
+                mainIntent.putExtra("uid",masterModel.getData().getUid());
+                mainIntent.putExtra("image",masterModel.getData().getUserProfilePic());
+                mainIntent.putExtra("username",masterModel.getData().getUserNickName());
                 startActivity(mainIntent);
             }
         });
         binding.btnHostRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(getActivity(), HostRegistrationFormActivity.class);
-                mainIntent.putExtra("uid",String.valueOf(userDetails.getUid()));
-                mainIntent.putExtra("image",userDetails.getImage());
-                startActivity(mainIntent);
+//                Intent mainIntent = new Intent(getActivity(), HostRegistrationFormActivity.class);
+//                mainIntent.putExtra("uid",String.valueOf(userDetails.getUid()));
+//                mainIntent.putExtra("image",userDetails.getImage());
+//                startActivity(mainIntent);
             }
         });
         binding.btnLiveHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(getActivity(), LiveHistoryActivity.class);
-                startActivity(mainIntent);
+//                Intent mainIntent = new Intent(getActivity(), LiveHistoryActivity.class);
+//                startActivity(mainIntent);
             }
         });
         binding.btnVip.setOnClickListener(new View.OnClickListener() {
@@ -265,7 +291,7 @@ public class ProfileFragment extends Fragment {
 
                     for (DocumentSnapshot document : value) {
                         userDetails = document.toObject(UserDetailsModel.class);
-                        updateUI(userDetails);
+//                        updateUI(userDetails);
 
                     }
                 });
@@ -279,7 +305,6 @@ public class ProfileFragment extends Fragment {
             binding.txtCountry.setText(userDetails.getCountry_name());
             binding.txtLevel.setText("Lv"+userDetails.getLevel());
             binding.txtCoin.setText(new Convert().prettyCount(Integer.parseInt(userDetails.getCoins())));
-//            binding.txtCoin.setText(new Convert().prettyCount(Integer.parseInt("150000")));
             binding.txtDiamond.setText(new Convert().prettyCount(Integer.parseInt(userDetails.getDiamond())));
             // Load image
             if (Objects.equals(userDetails.getImage(), "")){
@@ -301,6 +326,38 @@ public class ProfileFragment extends Fragment {
 
             updateLevel(userDetails.getUserId(),Long.parseLong(userDetails.getDiamond()),Integer.parseInt(userDetails.getLevel()));
             addUser(userDetails);
+        }catch (Exception e){
+            Log.i(TAG, "updateUI: "+e);
+        }
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void updateUI1(MasterModel userDetails) {
+        try {
+            binding.txtUsername.setText(userDetails.getData().getUserNickName());
+            binding.txtUid.setText("ID : "+userDetails.getData().getUid());
+//            binding.txtCountry.setText(userDetails.getData().getCountry().);
+            binding.txtLevel.setText("Lv"+userDetails.getData().getLevel());
+            binding.txtCoin.setText(new Convert().prettyCount(userDetails.getData().getUcoins()));
+            binding.txtDiamond.setText(new Convert().prettyCount(userDetails.getData().getUdiamonds()));
+            // Load image
+            if (Objects.equals(userDetails.getData().getUserProfilePic(), "") || userDetails.getData().getUserProfilePic() == null){
+                Glide.with(requireActivity())
+                        .load(Constant.USER_PLACEHOLDER_PATH)
+                        .into(binding.profileImage);
+            }
+            else {
+                Glide.with(requireActivity())
+                        .load(userDetails.getData().getUserProfilePic())
+                        .into(binding.profileImage);
+            }
+            if (!Objects.equals(userDetails.getData().getUserProfilePic(), "") || userDetails.getData().getUserProfilePic() != null) {
+                ZEGOLiveAudioRoomManager.getInstance().updateUserAvatarUrl(userDetails.getData().getUserProfilePic(),(userAvatarUrl, errorInfo) -> {
+                    Log.i("3456789", "userAvatarUrl: "+userAvatarUrl);
+
+                });
+            }
         }catch (Exception e){
             Log.i(TAG, "updateUI: "+e);
         }

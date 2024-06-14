@@ -21,6 +21,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -39,12 +41,14 @@ import com.stream.prettylive.notification.FCMNotificationSender;
 import com.stream.prettylive.streaming.activity.CallWaitActivity;
 import com.stream.prettylive.streaming.activity.LiveAudioRoomActivity;
 import com.stream.prettylive.streaming.activity.LiveStreamingActivity;
+import com.stream.prettylive.streaming.activity.model.LiveStreamingResponse;
 import com.stream.prettylive.streaming.internal.ZEGOLiveStreamingManager;
 import com.stream.prettylive.streaming.internal.ZEGOCallInvitationManager;
 import com.stream.prettylive.streaming.internal.business.call.CallExtendedData;
 import com.stream.prettylive.streaming.internal.business.call.FullCallInfo;
 import com.stream.prettylive.streaming.internal.sdk.ZEGOSDKManager;
 import com.stream.prettylive.streaming.internal.sdk.basic.ZEGOSDKUser;
+import com.stream.prettylive.streaming.viewmodel.LiveViewModel;
 import com.stream.prettylive.ui.home.HomeActivity;
 import com.stream.prettylive.ui.home.ui.profile.models.UserDetailsModel;
 import com.stream.prettylive.ui.utill.Constant;
@@ -68,10 +72,12 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private CollectionReference usersRef;
     private UserDetailsModel userDetails;
+    private LiveViewModel liveViewModel;
+
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    Toast.makeText(this, "Notifications permission granted",Toast.LENGTH_SHORT)
+                    Toast.makeText(this, "permission granted",Toast.LENGTH_SHORT)
                             .show();
                 } else {
                     Toast.makeText(this, "FCM can't post notifications without POST_NOTIFICATIONS permission",
@@ -85,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        liveViewModel = new ViewModelProvider(this).get(LiveViewModel.class);
 
 
         mAuth = FirebaseAuth.getInstance();
@@ -114,18 +122,32 @@ public class MainActivity extends AppCompatActivity {
                 public void onResult(boolean allGranted, @NonNull List<String> grantedList,
                                      @NonNull List<String> deniedList) {
                     if (allGranted) {
-                        if (getSaltString(userDetails.getUserId()) != null) {
-                        Intent intent = new Intent(MainActivity.this, LiveStreamingActivity.class);
-                        intent.putExtra("host", true);
-                        intent.putExtra("liveID", getSaltString(userDetails.getUserId()));
-                        intent.putExtra("userId", userDetails.getUserId());
-                        intent.putExtra("username", userDetails.getUsername());
-                        intent.putExtra("uid", userDetails.getUid());
-                        intent.putExtra("country_name", userDetails.getCountry_name());
-                        intent.putExtra("image", userDetails.getImage());
-                        intent.putExtra("level", userDetails.getLevel());
-                        startActivity(intent);
-                        }
+                        liveViewModel.createLiveStreaming(ApplicationClass.getSharedpref().getString(AppConstants.UID), "live_streaming").observe(MainActivity.this, new Observer<LiveStreamingResponse>() {
+                            @Override
+                            public void onChanged(LiveStreamingResponse response) {
+                                if (response.getSuccess()) {
+                                    if (response.getShow()) {
+                                        Toast.makeText(MainActivity.this, response.getMsg(), Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    goToLive(response);
+                                } else {
+                                    Toast.makeText(MainActivity.this, "Live Streaming not created ", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+//                        if (getSaltString(userDetails.getUserId()) != null) {
+//                        Intent intent = new Intent(MainActivity.this, LiveStreamingActivity.class);
+//                        intent.putExtra("host", true);
+//                        intent.putExtra("liveID", getSaltString(userDetails.getUserId()));
+//                        intent.putExtra("userId", userDetails.getUserId());
+//                        intent.putExtra("username", userDetails.getUsername());
+//                        intent.putExtra("uid", userDetails.getUid());
+//                        intent.putExtra("country_name", userDetails.getCountry_name());
+//                        intent.putExtra("image", userDetails.getImage());
+//                        intent.putExtra("level", userDetails.getLevel());
+//                        startActivity(intent);
+//                        }
                     }
                 }
             });
@@ -227,6 +249,19 @@ public class MainActivity extends AppCompatActivity {
         askNotificationPermission();
     }
 
+    private void goToLive(LiveStreamingResponse response) {
+        Intent intent = new Intent(MainActivity.this, LiveStreamingActivity.class);
+        intent.putExtra("host", true);
+        intent.putExtra("liveID", response.getData().getLiveStreamingChannelId());
+        intent.putExtra("userId", response.getData().getId());
+        intent.putExtra("username", response.getData().getUserNickName());
+        intent.putExtra("uid", response.getData().getUid());
+        intent.putExtra("country_name", "ind");
+        intent.putExtra("image", "");
+        intent.putExtra("level", "1");
+        startActivity(intent);
+    }
+
     private void enterPIPMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Rational aspectRatio = new Rational(16, 9); // Aspect ratio of PIP screen
@@ -259,8 +294,8 @@ public class MainActivity extends AppCompatActivity {
             public void onResult(boolean allGranted, @NonNull List<String> grantedList,
                                  @NonNull List<String> deniedList) {
                 if (grantedList.contains(Manifest.permission.CAMERA)) {
-                    ZEGOSDKManager.getInstance().expressService.openCamera(true);
-                    binding.videoView.startPreviewOnly();
+//                    ZEGOSDKManager.getInstance().expressService.openCamera(true);
+//                    binding.videoView.startPreviewOnly();
                 }
             }
         });

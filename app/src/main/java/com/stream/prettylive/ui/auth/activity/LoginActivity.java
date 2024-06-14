@@ -103,10 +103,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (email.isEmpty() || password.isEmpty()){
                     Toast.makeText(LoginActivity.this, "Please enter email and password.", Toast.LENGTH_SHORT).show();
                 }else {
-
                     loginUser(email,password);
-
-//                    signIn(email, password);
                 }
 
             }
@@ -133,9 +130,18 @@ public class LoginActivity extends AppCompatActivity {
             public void onChanged(UserResponseModel user) {
                 progressDialog.dismiss();
                 if (user != null) {
-//                    ApplicationClass.getSharedpref().saveModel(AppConstants.LOGIN_DATA, user.getData().getUser());
                     ApplicationClass.getSharedpref().saveString(AppConstants.TOKEN, user.getData().getToken());
-                    Toast.makeText(LoginActivity.this, ""+user.getMsg(), Toast.LENGTH_SHORT).show();
+                    ApplicationClass.getSharedpref().saveString(AppConstants.USER_NAME, user.getData().getUser().getUserNickName());
+                    ApplicationClass.getSharedpref().saveString(AppConstants.UID, user.getData().getUser().getUid());
+                    ApplicationClass.getSharedpref().saveString(AppConstants.DB_ID, user.getData().getUser().getId());
+                    ApplicationClass.getSharedpref().saveString(AppConstants.USER_ID, "iWauy6YRBmWvWpaFdm3rFhrlQb82");
+                    if (user.getShow()) {
+                        Toast.makeText(LoginActivity.this, user.getMsg(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    if (user.getStatusCode() == 200 && user.getSuccess()) {
+                        moveNextHome();
+                    }
                 } else {
                     Toast.makeText(LoginActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();
                 }

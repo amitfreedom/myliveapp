@@ -136,8 +136,8 @@ public class OnboardingActivity extends AppCompatActivity {
         binding.btnGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                googleSignIn();
-//                googleSignIn1();
+//                googleSignIn();
+                googleSignIn1();
 
             }
         });
@@ -419,9 +419,9 @@ public class OnboardingActivity extends AppCompatActivity {
         // Display One-Tap Sign In if user isn't logged in
         FirebaseUser currentUser = mAuth.getCurrentUser();
         Log.i("currentUser123", "onCreate: "+currentUser);
-        if (currentUser == null) {
-            oneTapSignIn();
-        }
+//        if (currentUser == null) {
+//            oneTapSignIn();
+//        }
     }
 
     @Override
@@ -459,6 +459,7 @@ public class OnboardingActivity extends AppCompatActivity {
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        progressDialog.show();
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             String email = account.getEmail();
@@ -466,14 +467,26 @@ public class OnboardingActivity extends AppCompatActivity {
             String image = String.valueOf(account.getPhotoUrl());
 
 
-            userViewModel.googleLogin("","","","","").observe(OnboardingActivity.this, new Observer<UserResponseModel>() {
+            userViewModel.googleLogin("google",email,DeviceUtils.getDeviceId(this),reg_id,image).observe(OnboardingActivity.this, new Observer<UserResponseModel>() {
                 @Override
                 public void onChanged(UserResponseModel user) {
-                    if (user != null) {
-//                        textView.setText("Google Login Successful! Welcome " + user.getName());
-                    } else {
-//                        textView.setText("Google Login Failed");
-                    }
+                    progressDialog.dismiss();
+                        if (user != null) {
+                            ApplicationClass.getSharedpref().saveString(AppConstants.TOKEN, user.getData().getToken());
+                            ApplicationClass.getSharedpref().saveString(AppConstants.UID, user.getData().getUser().getUid());
+                            ApplicationClass.getSharedpref().saveString(AppConstants.DB_ID, user.getData().getUser().getId());
+                            ApplicationClass.getSharedpref().saveString(AppConstants.USER_ID, "iWauy6YRBmWvWpaFdm3rFhrlQb82");
+                            if (user.getShow()) {
+                                Toast.makeText(OnboardingActivity.this, user.getMsg(), Toast.LENGTH_SHORT).show();
+                            }
+
+                            if (user.getStatusCode() == 200 && user.getSuccess()) {
+                                moveNextPage();
+                            }
+                        } else {
+                            Toast.makeText(OnboardingActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();
+                        }
+
                 }
             });
 

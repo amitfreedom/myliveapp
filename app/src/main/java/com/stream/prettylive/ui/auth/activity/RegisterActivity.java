@@ -20,7 +20,6 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.hbb20.CountryCodePicker;
-import com.stream.prettylive.R;
 import com.stream.prettylive.databinding.ActivityRegisterBinding;
 import com.stream.prettylive.global.AppConstants;
 import com.stream.prettylive.global.ApplicationClass;
@@ -29,6 +28,7 @@ import com.stream.prettylive.ui.auth.viewmodel.UserViewModel;
 import com.stream.prettylive.ui.common.BaseActivity;
 import com.stream.prettylive.ui.common.GenerateUserId;
 import com.stream.prettylive.ui.home.HomeActivity;
+import com.stream.prettylive.ui.utill.DeviceUtils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -44,6 +44,7 @@ public class RegisterActivity extends BaseActivity {
     private ProgressDialog progressDialog;
     String countryName = "";
     String countryCode="";
+    String device_token="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,34 +75,42 @@ public class RegisterActivity extends BaseActivity {
                 String password = binding.txtPassword.getText().toString().trim();
                 String confirm_password = binding.txtConfirmPassword.getText().toString().trim();
 
-//                if (username.isEmpty()) {
-//                    Toast.makeText(RegisterActivity.this, "Please enter username.", Toast.LENGTH_SHORT).show();
-//                }
-//                else if (emailAddress.isEmpty()) {
-//                    Toast.makeText(RegisterActivity.this, "Email address can't be empty.", Toast.LENGTH_SHORT).show();
-//
-//                } else if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
-//                    Toast.makeText(RegisterActivity.this, "Please enter valid email address", Toast.LENGTH_SHORT).show();
-//                } else if (phone.isEmpty()) {
-//                    Toast.makeText(RegisterActivity.this, "Please enter phone number", Toast.LENGTH_SHORT).show();
-//                } else if (password.isEmpty()) {
-//                    Toast.makeText(RegisterActivity.this, "Please enter password", Toast.LENGTH_SHORT).show();
-//                }else if (!password.equals(confirm_password)) {
-//                    Toast.makeText(RegisterActivity.this, "Password is mismatch please check once", Toast.LENGTH_SHORT).show();
-//                } else {
-                    signUp(emailAddress,password);
-//                    createAccount(emailAddress, password);
-//                }
+                if (emailAddress.isEmpty()) {
+                    Toast.makeText(RegisterActivity.this, "Email address can't be empty.", Toast.LENGTH_SHORT).show();
 
+                } else if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
+                    Toast.makeText(RegisterActivity.this, "Please enter valid email address", Toast.LENGTH_SHORT).show();
+                } else if (password.isEmpty()) {
+                    Toast.makeText(RegisterActivity.this, "Please enter password", Toast.LENGTH_SHORT).show();
+                }else if (!password.equals(confirm_password)) {
+                    Toast.makeText(RegisterActivity.this, "Password is mismatch please check once", Toast.LENGTH_SHORT).show();
+                } else {
+                    signUp(emailAddress,password, DeviceUtils.getDeviceId(RegisterActivity.this),device_token );
+                }
+
+            }
+        });
+
+        DeviceUtils.getDeviceToken(new DeviceUtils.TokenFetchListener() {
+            @Override
+            public void onTokenFetchSuccess(String token) {
+                device_token=token;
+            }
+
+            @Override
+            public void onTokenFetchFailure(Exception e) {
+                device_token="";
             }
         });
     }
 
-    private void signUp(String emailAddress, String password) {
-        userViewModel.signUp("test@gmail.com", "test", "deviceId", "deviceToken").observe(RegisterActivity.this, new Observer<UserResponseModel>() {
+    private void signUp(String emailAddress, String password, String deviceId, String device_token){
+        progressDialog.show();
+        userViewModel.signUp(emailAddress, password, deviceId, device_token).observe(RegisterActivity.this, new Observer<UserResponseModel>() {
             @Override
             public void onChanged(UserResponseModel user) {
                 if (user != null) {
+                    loginUser(emailAddress,password);
                     Toast.makeText(RegisterActivity.this, "Sign Up Successful! Welcome", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(RegisterActivity.this, "Sign Up Failed", Toast.LENGTH_SHORT).show();
@@ -109,6 +118,35 @@ public class RegisterActivity extends BaseActivity {
             }
         });
     }
+
+    private void loginUser(String emailAddress, String password) {
+        userViewModel.login(emailAddress, password).observe(RegisterActivity.this, new Observer<UserResponseModel>() {
+            @Override
+            public void onChanged(UserResponseModel user) {
+                progressDialog.dismiss();
+                if (user != null) {
+                    ApplicationClass.getSharedpref().saveString(AppConstants.TOKEN, user.getData().getToken());
+                    ApplicationClass.getSharedpref().saveString(AppConstants.UID, user.getData().getUser().getUid());
+                    ApplicationClass.getSharedpref().saveString(AppConstants.DB_ID, user.getData().getUser().getId());
+                    ApplicationClass.getSharedpref().saveString(AppConstants.USER_ID, "iWauy6YRBmWvWpaFdm3rFhrlQb82");
+
+                    if (user.getShow()) {
+                        Toast.makeText(RegisterActivity.this, user.getMsg(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    if (user.getStatusCode() == 200 && user.getSuccess()) {
+                        moveNextPage();
+                    }
+
+
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();
+                }
+                
+            }
+        });
+    }
+
 
     private void createAccount(String email, String password) {
 

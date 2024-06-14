@@ -38,6 +38,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -102,7 +104,10 @@ import com.stream.prettylive.streaming.internal.sdk.express.ExpressService;
 import com.stream.prettylive.streaming.internal.sdk.express.IExpressEngineEventHandler;
 import com.stream.prettylive.streaming.internal.sdk.zim.IZIMEventHandler;
 import com.stream.prettylive.streaming.internal.utils.ToastUtil;
+import com.stream.prettylive.ui.auth.models.UserMainResponse;
+import com.stream.prettylive.ui.auth.viewmodel.UserViewModel;
 import com.stream.prettylive.ui.home.HomeActivity;
+import com.stream.prettylive.ui.home.ui.profile.activity.UpdateUserDetailsActivity;
 import com.stream.prettylive.ui.home.ui.profile.models.UserDetailsModel;
 import com.stream.prettylive.ui.home.ui.profile.models.UserModel;
 import com.stream.prettylive.ui.utill.Constant;
@@ -139,6 +144,7 @@ import org.json.JSONObject;
 public class LiveStreamingActivity extends AppCompatActivity{
     private static final int LIMIT = 50;
     private ActivityLiveStreamingBinding binding;
+    private UserViewModel userViewModel;
     private String liveID;
     private String userId;
     private String otherUserId;
@@ -148,7 +154,7 @@ public class LiveStreamingActivity extends AppCompatActivity{
     private String country;
     private String image;
     private String level;
-    private long uid;
+    private String uid;
     //    private AlertDialog inviteCoHostDialog;
     private AlertDialog zimReconnectDialog;
     private AlertDialog startPKDialog;
@@ -193,6 +199,7 @@ public class LiveStreamingActivity extends AppCompatActivity{
         binding = ActivityLiveStreamingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         mAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
@@ -209,12 +216,13 @@ public class LiveStreamingActivity extends AppCompatActivity{
         image = getIntent().getStringExtra("image");
         level = getIntent().getStringExtra("level");
         audienceId = getIntent().getStringExtra("audienceId");
-        uid = getIntent().getLongExtra("uid",0);
+        uid = getIntent().getStringExtra("uid");
 
         ApplicationClass.getSharedpref().saveString(AppConstants.ROOM_ID,liveID);
 
         Log.i("liveID", "onCreate: ===="+liveID);
         fetchOtherUserDetails(userId);
+        getUserDataApi();
         if (!isHost){
             currentUserDetails(audienceId);
         }else {
@@ -957,9 +965,9 @@ public class LiveStreamingActivity extends AppCompatActivity{
             binding.topView.setVisibility(View.VISIBLE);
             binding.previewStart.setVisibility(View.GONE);
             binding.previewBeauty.setVisibility(View.GONE);
-            binding.messageBtn.setVisibility(View.VISIBLE);
-            binding.gameViewPager.setVisibility(View.VISIBLE);
-            binding.recyclerAllMessage.setVisibility(View.VISIBLE);
+//            binding.messageBtn.setVisibility(View.VISIBLE);
+//            binding.gameViewPager.setVisibility(View.VISIBLE);
+//            binding.recyclerAllMessage.setVisibility(View.VISIBLE);
             binding.liveBottomMenuBar.setVisibility(View.VISIBLE);
         }
     }
@@ -1020,6 +1028,45 @@ public class LiveStreamingActivity extends AppCompatActivity{
 
         };
         binding.rvViewers.setAdapter(mAdapter);
+    }
+
+    private void getUserDataApi() {
+        int masterId = Integer.parseInt(uid);
+        userViewModel.getUser(masterId).observe(LiveStreamingActivity.this, new Observer<UserMainResponse>() {
+            @Override
+            public void onChanged(UserMainResponse master) {
+                if (master != null) {
+                    updateUIData(master);
+
+                } else {
+                    Toast.makeText(LiveStreamingActivity.this, "Master Not Found", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        });
+    }
+
+    private void updateUIData(UserMainResponse userDetails) {
+        try {
+//            if(!Objects.equals(userDetails.getData().getUserProfilePic(), "")) {
+//                Glide.with(this).load(userDetails.getData().getUserProfilePic()).into(binding.ivUserImage);
+//            }else {
+                Glide.with(this).load(Constant.USER_PLACEHOLDER_PATH).into(binding.ivUserImage);
+//            }
+            runOnUiThread(new Runnable() {
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void run() {
+                    binding.txtUsername.setText(userDetails.getData().getUserNickName());
+                    binding.txtUid.setText("ID : "+userDetails.getData().getUid());
+                    binding.txtLevel.setText("Lv"+userDetails.getData().getLevel());
+                    binding.txtCoin.setText(new Convert().prettyCount(0));
+                }
+            });
+        }catch (Exception e){
+            Log.e("error", "Exception in Update coin: "+e.getMessage() );
+
+        }
     }
 
     private void fetchOtherUserDetails(String userId) {
@@ -1293,7 +1340,7 @@ public class LiveStreamingActivity extends AppCompatActivity{
                     boolean isHost = getIntent().getBooleanExtra("host", true);
                     // save live data
                     if (isHost){
-                        saveLiveData(userId,uid,username,true,liveID,"0",country,image);
+                        saveLiveData(userId, Long.parseLong(uid),username,true,liveID,"0",country,image);
                         new AddStreamInfo().roomActive(liveID, String.valueOf(uid),userId);
                         new AddStreamInfo().addStreamInfo(liveID, String.valueOf(uid),userId, username, image);
                         new SendGlobalMessage(liveID,"welcome to Pretty live","video");
@@ -1313,9 +1360,9 @@ public class LiveStreamingActivity extends AppCompatActivity{
         binding.topView.setVisibility(View.VISIBLE);
         binding.previewStart.setVisibility(View.GONE);
         binding.previewBeauty.setVisibility(View.GONE);
-        binding.messageBtn.setVisibility(View.VISIBLE);
-        binding.gameViewPager.setVisibility(View.VISIBLE);
-        binding.recyclerAllMessage.setVisibility(View.VISIBLE);
+//        binding.messageBtn.setVisibility(View.VISIBLE);
+//        binding.gameViewPager.setVisibility(View.VISIBLE);
+//        binding.recyclerAllMessage.setVisibility(View.VISIBLE);
         binding.liveBottomMenuBar.setVisibility(View.VISIBLE);
         binding.welcomeText.setVisibility(View.VISIBLE);
 
@@ -1334,9 +1381,9 @@ public class LiveStreamingActivity extends AppCompatActivity{
             ZEGOLiveStreamingManager.getInstance().startPublishingStream();
             // Call the FCMNotificationSender's sendNotification method
             FCMNotificationSender.sendNotificationToDevice("deviceToken", "PrettyLive",""+username+"!!"+" started videoLive" );
-            binding.giftButton.setVisibility(View.VISIBLE);
+//            binding.giftButton.setVisibility(View.VISIBLE);
         }else {
-            binding.giftButton.setVisibility(View.VISIBLE);
+//            binding.giftButton.setVisibility(View.VISIBLE);
         }
 
         ZEGOSDKManager.getInstance().expressService.startSoundLevelMonitor();

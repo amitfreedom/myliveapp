@@ -4,6 +4,9 @@ public class AppConstants {
     public static final String DB = "MyDonaLive";
     public static final String USER_ID = "userid";
     public static final String TOKEN = "token";
+    public static final String UID = "userUID";
+    public static final String USER_NAME = "user_name";
+    public static final String DB_ID = "user_db_id";
     public static final String LOGIN_DATA = "login_data";
     public static final String USER_DETAILS = "user_details";
     public static final String ROOM_ID = "roomID";

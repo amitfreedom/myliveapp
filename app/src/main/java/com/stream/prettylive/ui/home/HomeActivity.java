@@ -116,6 +116,13 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
+    private void initSDK(String uid,String username) {
+        signInZEGOSDK(uid, username, (errorCode, message) -> {
+            if (errorCode == 0) {
+//                Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     private void signInZEGOSDK(String userID, String userName, ZEGOSDKCallBack callback) {
         ZEGOSDKManager.getInstance().connectUser(userID, userName, callback);
@@ -138,7 +145,9 @@ public class HomeActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        fetchUserDetails(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
+        initSDK(ApplicationClass.getSharedpref().getString(AppConstants.UID),ApplicationClass.getSharedpref().getString(AppConstants.USER_NAME));
+
+//        fetchUserDetails(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
     }
 
     @Override
