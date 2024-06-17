@@ -66,6 +66,14 @@ public class RegisterActivity extends BaseActivity {
 
         countryName = binding.ccp.getSelectedCountryName();
         countryCode = binding.ccp.getSelectedCountryCode();
+
+        binding.btnLogin.setOnClickListener(view -> {
+            onBackPressed();
+//            Intent mainIntent = new Intent(RegisterActivity.this, HomeActivity.class);
+//            mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            startActivity(mainIntent);
+//            finish();
+        });
         binding.btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

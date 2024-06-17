@@ -57,7 +57,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 
-public class ActiveUserFragment extends Fragment implements ActiveUserAdapter.OnActiveUserSelectedListener {
+public class ActiveUserFragment extends Fragment {
     private FragmentActiveUserBinding binding;
     private static final int LIMIT = 50;
     private FirebaseFirestore mFirestore;
@@ -85,14 +85,6 @@ public class ActiveUserFragment extends Fragment implements ActiveUserAdapter.On
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mFirestore = FirebaseFirestore.getInstance();
-
-        mQuery = mFirestore.collection(Constant.LIVE_DETAILS)
-                .orderBy("startTime", Query.Direction.DESCENDING)
-                .whereEqualTo("liveStatus","online")
-
-//                .whereNotEqualTo("userId",ApplicationClass.getSharedpref().getString(AppConstants.USER_ID))
-                .limit(LIMIT);
 
         imageSliderAdapter = new ImageSliderAdapter(getActivity(), images);
         binding.viewPager.setAdapter(imageSliderAdapter);
@@ -115,31 +107,30 @@ public class ActiveUserFragment extends Fragment implements ActiveUserAdapter.On
         });
 
         // RecyclerView
-        mAdapter = new ActiveUserAdapter(mQuery, this) {
-            @Override
-            protected void onDataChanged() {
-                // Show/hide content if the query returns empty.
-                if (getItemCount() == 0) {
-                    binding.recyclerRestaurants.setVisibility(View.GONE);
-                    binding.viewEmpty.setVisibility(View.VISIBLE);
-                } else {
-                    binding.recyclerRestaurants.setVisibility(View.VISIBLE);
-                    binding.viewEmpty.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            protected void onError(FirebaseFirestoreException e) {
-                Log.e("FirebaseFirestoreException", "onError: "+e );
-                // Show a snackbar on errors
-//                Snackbar.make(binding.getRoot(),
-//                        "Error: check logs for info.", Snackbar.LENGTH_LONG).show();
-            }
-
-
-        };
-//        binding.recyclerRestaurants.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.recyclerRestaurants.setAdapter(mAdapter);
+//        mAdapter = new ActiveUserAdapter(mQuery, this) {
+//            @Override
+//            protected void onDataChanged() {
+//                // Show/hide content if the query returns empty.
+//                if (getItemCount() == 0) {
+//                    binding.recyclerRestaurants.setVisibility(View.GONE);
+//                    binding.viewEmpty.setVisibility(View.VISIBLE);
+//                } else {
+//                    binding.recyclerRestaurants.setVisibility(View.VISIBLE);
+//                    binding.viewEmpty.setVisibility(View.GONE);
+//                }
+//            }
+//
+//            @Override
+//            protected void onError(FirebaseFirestoreException e) {
+//                Log.e("FirebaseFirestoreException", "onError: "+e );
+//                // Show a snackbar on errors
+////                Snackbar.make(binding.getRoot(),
+////                        "Error: check logs for info.", Snackbar.LENGTH_LONG).show();
+//            }
+//
+//
+//        };
+//        binding.recyclerRestaurants.setAdapter(mAdapter);
 
         // if LiveStreaming,init after user login,may receive pk request.
         ZEGOLiveStreamingManager.getInstance().init();
@@ -149,12 +140,12 @@ public class ActiveUserFragment extends Fragment implements ActiveUserAdapter.On
         binding.extendedFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplication(), MainActivity.class);
+                Intent intent = new Intent(requireActivity(), MainActivity.class);
                 startActivity(intent);
             }
         });
 
-        updateLiveStatus(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
+//        updateLiveStatus(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
 
         if (requireActivity().getIntent()!=null){
 
@@ -190,7 +181,7 @@ public class ActiveUserFragment extends Fragment implements ActiveUserAdapter.On
                     Toast.makeText(getActivity(), "The host has kicked out you for this live. You can not enter this live, ", Toast.LENGTH_SHORT).show();
                 }else {
 
-                    goToLive(user);
+//                    goToLive(user);
 
                 }
 
@@ -242,52 +233,6 @@ public class ActiveUserFragment extends Fragment implements ActiveUserAdapter.On
         });
 
     }
-    private void updateLiveStatus(String userId) {
-        // Reference to the Firestore collection
-        CollectionReference liveDetailsRef = FirebaseFirestore.getInstance().collection(Constant.LIVE_DETAILS);
-
-        // Create a query to find the document with the given userId
-        Query query = liveDetailsRef.whereEqualTo("userId", userId).whereEqualTo("liveID",ApplicationClass.getSharedpref().getString(AppConstants.ROOM_ID));
-
-        query.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    // Get the document ID for the matched document
-                    String documentId = document.getId();
-                    String liveStatus = document.getString("liveStatus");
-
-
-                    assert liveStatus != null;
-                    if (liveStatus.equals("offline")){
-                        return;
-                    }else {
-
-//                        long timestamp = System.currentTimeMillis();
-                        Date currentDate = new Date();
-                        long timestamp = currentDate.getTime();
-                        Map<String, Object> updateDetails = new HashMap<>();
-                        updateDetails.put("liveStatus", "offline");
-                        updateDetails.put("endTime", timestamp);
-
-                        // Update the liveType field from 0 to 1
-                        liveDetailsRef.document(documentId)
-                                .update(updateDetails)
-                                .addOnSuccessListener(aVoid -> {
-                                    ApplicationClass.getSharedpref().saveString(AppConstants.ROOM_ID,"");
-                                    Log.i("UpdateLiveType", "liveType updated successfully for user with ID: " + userId);
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e("UpdateLiveType", "Error updating liveType for user with ID: " + userId, e);
-                                });
-                    }
-
-
-                }
-            } else {
-                Log.e("UpdateLiveType", "Error getting documents: ", task.getException());
-            }
-        });
-    }
 
     private void addDotsIndicator(int position) {
         ImageView[] dots = new ImageView[images.length];
@@ -309,17 +254,6 @@ public class ActiveUserFragment extends Fragment implements ActiveUserAdapter.On
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // Start listening for Firestore updates
-        if (mAdapter != null) {
-            mAdapter.startListening();
-        }
-
-
-    }
 
     @Override
     public void onStop() {
@@ -332,60 +266,57 @@ public class ActiveUserFragment extends Fragment implements ActiveUserAdapter.On
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (mAdapter != null) {
-            mAdapter.stopListening();
-        }
         binding=null;
     }
 
 
-    @Override
-    public void onActiveUserSelected(DocumentSnapshot user) {
-        Log.i("test12345", "onActiveUserSelected: "+user.get("userId"));
-        String liveType= (String) user.get("liveType");
-        String liveID= (String) user.get("liveID");
-        String userId= (String) user.get("userId");
-        String username= (String) user.get("username");
-        long uid= (long) user.get("uid");
-        if (TextUtils.isEmpty(liveID)) {
-            return;
-        }
-
-        checkKickOut(liveID,ApplicationClass.getSharedpref().getString(AppConstants.USER_ID),user);
-
-//        List<String> permissions = Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO);
-//        requestPermissionIfNeeded(permissions, new RequestCallback() {
-//            @Override
-//            public void onResult(boolean allGranted, @NonNull List<String> grantedList,
-//                                 @NonNull List<String> deniedList) {
-//                if (allGranted) {
-//                   Intent intent;
-//                    if (Objects.equals(liveType, "0")){
-//                        intent = new Intent(getActivity().getApplication(), LiveStreamingActivity.class);
-//                        intent.putExtra("host", false);
-//                        intent.putExtra("liveID", liveID);
-//                        intent.putExtra("userId", userId);
-//                        intent.putExtra("audienceId", ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
-//                        intent.putExtra("username", username);
-//                        intent.putExtra("uid", uid);
-//                        intent.putExtra("country_name", "");
-//                        startActivity(intent);
-//                    }else {
-//                        intent = new Intent(getActivity().getApplication(), LiveAudioRoomActivity.class);
-//                        intent.putExtra("host", false);
-//                        intent.putExtra("liveID", liveID);
-//                        intent.putExtra("userId", userId);
-//                        intent.putExtra("username", username);
-//                        intent.putExtra("audienceId", ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
-//                        intent.putExtra("uid", uid);
-//                        intent.putExtra("country_name", "");
-//                        startActivity(intent);
+//    @Override
+//    public void onActiveUserSelected(DocumentSnapshot user) {
+//        Log.i("test12345", "onActiveUserSelected: "+user.get("userId"));
+//        String liveType= (String) user.get("liveType");
+//        String liveID= (String) user.get("liveID");
+//        String userId= (String) user.get("userId");
+//        String username= (String) user.get("username");
+//        long uid= (long) user.get("uid");
+//        if (TextUtils.isEmpty(liveID)) {
+//            return;
+//        }
 //
-//                    }
-//                }
-//            }
-//        });
-    }
+////        checkKickOut(liveID,ApplicationClass.getSharedpref().getString(AppConstants.USER_ID),user);
+//
+////        List<String> permissions = Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO);
+////        requestPermissionIfNeeded(permissions, new RequestCallback() {
+////            @Override
+////            public void onResult(boolean allGranted, @NonNull List<String> grantedList,
+////                                 @NonNull List<String> deniedList) {
+////                if (allGranted) {
+////                   Intent intent;
+////                    if (Objects.equals(liveType, "0")){
+////                        intent = new Intent(getActivity().getApplication(), LiveStreamingActivity.class);
+////                        intent.putExtra("host", false);
+////                        intent.putExtra("liveID", liveID);
+////                        intent.putExtra("userId", userId);
+////                        intent.putExtra("audienceId", ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
+////                        intent.putExtra("username", username);
+////                        intent.putExtra("uid", uid);
+////                        intent.putExtra("country_name", "");
+////                        startActivity(intent);
+////                    }else {
+////                        intent = new Intent(getActivity().getApplication(), LiveAudioRoomActivity.class);
+////                        intent.putExtra("host", false);
+////                        intent.putExtra("liveID", liveID);
+////                        intent.putExtra("userId", userId);
+////                        intent.putExtra("username", username);
+////                        intent.putExtra("audienceId", ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
+////                        intent.putExtra("uid", uid);
+////                        intent.putExtra("country_name", "");
+////                        startActivity(intent);
+////
+////                    }
+////                }
+////            }
+////        });
+//    }
 
     private void requestPermissionIfNeeded(List<String> permissions, RequestCallback requestCallback) {
         boolean allGranted = true;

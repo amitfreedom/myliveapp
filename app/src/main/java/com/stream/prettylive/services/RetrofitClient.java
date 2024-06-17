@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
 //    private static final String BASE_URL = "https://apimylive.collegespike.com/socket-server/api/v2/";
-    private static final String BASE_URL = "https://apimylive.cynayd.com/api/v2/";
+    public static final String BASE_URL = "https://apimylive.cynayd.com/api/v2/";
     private static RetrofitClient instance;
     private Retrofit retrofit;
     private String jwtToken;

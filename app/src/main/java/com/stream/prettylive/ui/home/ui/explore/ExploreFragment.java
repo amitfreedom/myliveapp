@@ -89,8 +89,6 @@ public class ExploreFragment extends Fragment implements ExploreAdapter.OnActive
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        FirebaseFirestore.setLoggingEnabled(true);
-
         imageSliderAdapter = new ImageSliderAdapter(getActivity(), images);
         binding.viewPager.setAdapter(imageSliderAdapter);
 
@@ -113,55 +111,52 @@ public class ExploreFragment extends Fragment implements ExploreAdapter.OnActive
         // Firestore
         mFirestore = FirebaseFirestore.getInstance();
 
-        if (Objects.equals(countryNme, "Global")){
-            mQuery = mFirestore.collection(Constant.LIVE_DETAILS)
-                    .orderBy("startTime", Query.Direction.DESCENDING)
-                    .whereEqualTo("liveStatus","online")
-//                    .whereNotEqualTo("country","")
-                    .limit(LIMIT);
+//        if (Objects.equals(countryNme, "Global")){
+//            mQuery = mFirestore.collection(Constant.LIVE_DETAILS)
+//                    .orderBy("startTime", Query.Direction.DESCENDING)
+//                    .whereEqualTo("liveStatus","online")
+////                    .whereNotEqualTo("country","")
+//                    .limit(LIMIT);
+////
+////            mAdapter.setQuery(mQuery);
 //
-//            mAdapter.setQuery(mQuery);
-
-        }
-
-        // RecyclerView
-        mAdapter = new ExploreAdapter(mQuery, this) {
-            @Override
-            protected void onDataChanged() {
-                // Show/hide content if the query returns empty.
-                if (getItemCount() == 0) {
-                    binding.recyclerRestaurants.setVisibility(View.GONE);
-                    binding.viewEmpty.setVisibility(View.VISIBLE);
-                } else {
-                    binding.recyclerRestaurants.setVisibility(View.VISIBLE);
-                    binding.viewEmpty.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            protected void onError(FirebaseFirestoreException e) {
-                Log.e("FirebaseFirestoreException", "onError: "+e );
-            }
-
-
-        };
-        binding.recyclerRestaurants.setAdapter(mAdapter);
-
-        Glide.with(getActivity()).load(countryImage).into(binding.ivFlag);
-        binding.txtCountryTitle.setText(countryNme);
+//        }
+//
+//        // RecyclerView
+//        mAdapter = new ExploreAdapter(mQuery, this) {
+//            @Override
+//            protected void onDataChanged() {
+//                // Show/hide content if the query returns empty.
+//                if (getItemCount() == 0) {
+//                    binding.recyclerRestaurants.setVisibility(View.GONE);
+//                    binding.viewEmpty.setVisibility(View.VISIBLE);
+//                } else {
+//                    binding.recyclerRestaurants.setVisibility(View.VISIBLE);
+//                    binding.viewEmpty.setVisibility(View.GONE);
+//                }
+//            }
+//
+//            @Override
+//            protected void onError(FirebaseFirestoreException e) {
+//                Log.e("FirebaseFirestoreException", "onError: "+e );
+//            }
+//
+//
+//        };
+//        binding.recyclerRestaurants.setAdapter(mAdapter);
         binding.topRank.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(requireActivity(), TopListActivity.class);
-                startActivity(intent);
+//                Intent intent = new Intent(requireActivity(), TopListActivity.class);
+//                startActivity(intent);
             }
         });
         binding.gameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent;
-                intent = new Intent(getActivity().getApplication(), GameLuckyActivity.class);
-                startActivity(intent);
+//                Intent intent;
+//                intent = new Intent(getActivity().getApplication(), GameLuckyActivity.class);
+//                startActivity(intent);
 //                gameListPopup();
             }
         });
@@ -175,9 +170,9 @@ public class ExploreFragment extends Fragment implements ExploreAdapter.OnActive
         binding.searchView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent;
-                intent = new Intent(getActivity().getApplication(), SearchUserActivity.class);
-                startActivity(intent);
+//                Intent intent;
+//                intent = new Intent(getActivity().getApplication(), SearchUserActivity.class);
+//                startActivity(intent);
             }
         });
 
@@ -336,27 +331,13 @@ public class ExploreFragment extends Fragment implements ExploreAdapter.OnActive
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        if (mAdapter != null) {
-            mAdapter.startListening();
-        }
-    }
-
-    @Override
     public void onStop() {
         super.onStop();
-        if (mAdapter != null) {
-            mAdapter.stopListening();
-        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (mAdapter != null) {
-            mAdapter.stopListening();
-        }
         binding=null;
     }
 
@@ -373,7 +354,7 @@ public class ExploreFragment extends Fragment implements ExploreAdapter.OnActive
             return;
         }
 
-        checkKickOut(liveID,ApplicationClass.getSharedpref().getString(AppConstants.USER_ID),user);
+//        checkKickOut(liveID,ApplicationClass.getSharedpref().getString(AppConstants.USER_ID),user);
 
 
 

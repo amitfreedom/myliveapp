@@ -3,7 +3,7 @@
     <string name="google">Google</string>
     <string name="facebook">Facebook</string>
     <string name="email">Email</string>
-    <string name="txt_no_account_signup">Don\'t have an account? <font color="#2196F3">Register Now</font></string>
+    <string name="txt_no_account_signup">Don\'t have an account? <font color="#2196F3"> Register Now</font></string>
     <string name="txt_register_header">Create New Account</string>
     <string name="txt_register_subheader">Please provide all the required information</string>
     <string name="txt_username">Username</string>
@@ -363,4 +363,7 @@
     <string name="game_list">Game List</string>
     <string name="game_top">Top Games</string>
     <string name="id_card_number">ID Card Number*</string>
+    <string name="todo">TODO</string>
+    <string name="yes">Yes</string>
+    <string name="are_you_sure_you_want_to_logout">Are you sure you want to Logout?</string>
 </resources>

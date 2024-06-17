@@ -81,6 +81,7 @@
         android:layout_height="wrap_content">
 
         <RelativeLayout
+            android:layout_marginBottom="@dimen/_10dp"
             android:visibility="visible"
             android:id="@+id/btn_email"
             android:layout_width="match_parent"
@@ -94,7 +95,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/email"
-                android:layout_marginLeft="20dp"
+                android:layout_marginStart="@dimen/_15dp"
                 android:tint="@color/white"
                 android:layout_centerVertical="true"/>
 
@@ -124,7 +125,7 @@
                 android:layout_width="22dp"
                 android:layout_height="22dp"
                 android:src="@drawable/ic_google"
-                android:layout_marginLeft="20dp"
+                android:layout_marginStart="@dimen/_15dp"
                 android:tint="@color/white"
                 android:layout_centerVertical="true"/>
 
@@ -141,6 +142,7 @@
         </RelativeLayout>
 
         <RelativeLayout
+            android:visibility="gone"
             android:id="@+id/btn_phone"
             android:layout_below="@id/btn_google"
             android:layout_width="match_parent"

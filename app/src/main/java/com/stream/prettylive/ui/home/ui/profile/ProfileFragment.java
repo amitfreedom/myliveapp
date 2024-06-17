@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,9 +16,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -100,17 +103,8 @@ public class ProfileFragment extends Fragment {
 
         mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
 
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-        usersRef = db.collection(Constant.LOGIN_DETAILS);
-
         init();
         getUserDataApi(uid);
-        fetchFollowingUserList();
-        fetchFollowersUserList();
-        fetchUserDetails(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
-
-//        SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -165,33 +159,6 @@ public class ProfileFragment extends Fragment {
         bottomSheetDialogFragment.show(requireActivity().getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
     }
 
-    private void addUser(UserDetailsModel detailsModel) {
-        DocumentReference docRef = FirebaseFirestore.getInstance().collection("game_users").document(detailsModel.getUserId());
-        Map<String, Object> TestData1 = new HashMap<>();
-        TestData1.put("MyPotA", 0);
-        TestData1.put("MyPotB", 0);
-        TestData1.put("MyPotC", 0);
-        TestData1.put("LOG", false);
-        TestData1.put("YourWager", 0);
-        TestData1.put("Coins", Long.parseLong(detailsModel.getCoins()));
-        TestData1.put("receiveCoin", detailsModel.getReceiveGameCoin());
-        TestData1.put("userName", detailsModel.getUsername());
-        TestData1.put("image", detailsModel.getImage());
-        TestData1.put("uid", detailsModel.getUid());
-        TestData1.put("userId", detailsModel.getUserId());
-        docRef.set(TestData1).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-//                Toast.makeText(requireActivity(), "user  created", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(requireActivity(), "game user failed to create", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     private void init() {
         binding.btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -212,13 +179,7 @@ public class ProfileFragment extends Fragment {
         binding.btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                mAuth.signOut();
-                mGoogleSignInClient.signOut();
-                ApplicationClass.getSharedpref().clearPreferences();
-                Intent mainIntent = new Intent(getActivity(), OnboardingActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(mainIntent);
-                requireActivity().finish();
+                showLogoutDialog();
             }
         });
         binding.btnEdit.setOnClickListener(new View.OnClickListener() {
@@ -250,110 +211,57 @@ public class ProfileFragment extends Fragment {
         binding.btnVip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(getActivity(), VIPActivity.class);
-                startActivity(mainIntent);
+//                Intent mainIntent = new Intent(getActivity(), VIPActivity.class);
+//                startActivity(mainIntent);
             }
         });
         binding.btnFollowing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(getActivity(), FollowFollowingActivity.class);
-                mainIntent.putExtra("type","following");
-                startActivity(mainIntent);
+//                Intent mainIntent = new Intent(getActivity(), FollowFollowingActivity.class);
+//                mainIntent.putExtra("type","following");
+//                startActivity(mainIntent);
             }
         });
         binding.btnFollowers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(getActivity(), FollowFollowingActivity.class);
-                mainIntent.putExtra("type","follow");
-                startActivity(mainIntent);
+//                Intent mainIntent = new Intent(getActivity(), FollowFollowingActivity.class);
+//                mainIntent.putExtra("type","follow");
+//                startActivity(mainIntent);
             }
         });
         binding.btnLevel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(getActivity(), LevelActivity.class);
-                startActivity(mainIntent);
+//                Intent mainIntent = new Intent(getActivity(), LevelActivity.class);
+//                startActivity(mainIntent);
             }
         });
     }
 
-    private void fetchUserDetails(String userId) {
-
-        usersRef.whereEqualTo("userId", userId)
-                .addSnapshotListener((value, error) -> {
-                    if (error != null) {
-                        // Handle error
-                        Log.e("FirestoreListener", "Listen failed: " + error.getMessage());
-                        return;
-                    }
-
-                    for (DocumentSnapshot document : value) {
-                        userDetails = document.toObject(UserDetailsModel.class);
-//                        updateUI(userDetails);
-
-                    }
-                });
-    }
-
     @SuppressLint("SetTextI18n")
-    private void updateUI(UserDetailsModel userDetails) {
+    private void updateUI1(MasterModel userDetails1) {
         try {
-            binding.txtUsername.setText(userDetails.getUsername());
-            binding.txtUid.setText("ID : "+String.valueOf(userDetails.getUid()));
-            binding.txtCountry.setText(userDetails.getCountry_name());
-            binding.txtLevel.setText("Lv"+userDetails.getLevel());
-            binding.txtCoin.setText(new Convert().prettyCount(Integer.parseInt(userDetails.getCoins())));
-            binding.txtDiamond.setText(new Convert().prettyCount(Integer.parseInt(userDetails.getDiamond())));
+            binding.txtUsername.setText(userDetails1.getData().getUserNickName());
+            binding.txtUid.setText("ID : "+userDetails1.getData().getUid());
+            binding.txtLevel.setText("Lv"+userDetails1.getData().getLevel());
+            binding.txtCoin.setText(new Convert().prettyCount(userDetails1.getData().getUcoins()));
+            binding.txtDiamond.setText(new Convert().prettyCount(userDetails1.getData().getUdiamonds()));
             // Load image
-            if (Objects.equals(userDetails.getImage(), "")){
-                Glide.with(getActivity())
-                        .load(Constant.USER_PLACEHOLDER_PATH)
-                        .into(binding.profileImage);
-            }else {
-                Glide.with(getActivity())
-                        .load(userDetails.getImage())
-                        .into(binding.profileImage);
-            }
-            if (!Objects.equals(userDetails.getImage(), "")) {
-                ZEGOLiveAudioRoomManager.getInstance().updateUserAvatarUrl(userDetails.getImage(),(userAvatarUrl, errorInfo) -> {
+            Glide.with(requireActivity())
+                    .load(userDetails1.getData().getUserProfilePic())
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .placeholder(R.drawable.profile_avatar_placeholder)
+                    .error(R.drawable.profile_avatar_placeholder)
+                    .into(binding.profileImage);
 
-                    Log.i("3456789", "userAvatarUrl: "+userAvatarUrl);
+            binding.txtFollowingCount.setText(userDetails1.getData().getFollowing());
+            binding.txtFollowersCount.setText(userDetails1.getData().getFollowers());
 
-                });
-            }
-
-            updateLevel(userDetails.getUserId(),Long.parseLong(userDetails.getDiamond()),Integer.parseInt(userDetails.getLevel()));
-            addUser(userDetails);
-        }catch (Exception e){
-            Log.i(TAG, "updateUI: "+e);
-        }
-
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void updateUI1(MasterModel userDetails) {
-        try {
-            binding.txtUsername.setText(userDetails.getData().getUserNickName());
-            binding.txtUid.setText("ID : "+userDetails.getData().getUid());
-//            binding.txtCountry.setText(userDetails.getData().getCountry().);
-            binding.txtLevel.setText("Lv"+userDetails.getData().getLevel());
-            binding.txtCoin.setText(new Convert().prettyCount(userDetails.getData().getUcoins()));
-            binding.txtDiamond.setText(new Convert().prettyCount(userDetails.getData().getUdiamonds()));
-            // Load image
-            if (Objects.equals(userDetails.getData().getUserProfilePic(), "") || userDetails.getData().getUserProfilePic() == null){
-                Glide.with(requireActivity())
-                        .load(Constant.USER_PLACEHOLDER_PATH)
-                        .into(binding.profileImage);
-            }
-            else {
-                Glide.with(requireActivity())
-                        .load(userDetails.getData().getUserProfilePic())
-                        .into(binding.profileImage);
-            }
-            if (!Objects.equals(userDetails.getData().getUserProfilePic(), "") || userDetails.getData().getUserProfilePic() != null) {
-                ZEGOLiveAudioRoomManager.getInstance().updateUserAvatarUrl(userDetails.getData().getUserProfilePic(),(userAvatarUrl, errorInfo) -> {
+            if (!Objects.equals(userDetails1.getData().getUserProfilePic(), "") || userDetails1.getData().getUserProfilePic() != null) {
+                ZEGOLiveAudioRoomManager.getInstance().updateUserAvatarUrl(userDetails1.getData().getUserProfilePic(),(userAvatarUrl, errorInfo) -> {
                     Log.i("3456789", "userAvatarUrl: "+userAvatarUrl);
 
                 });
@@ -364,97 +272,57 @@ public class ProfileFragment extends Fragment {
 
     }
 
+    private void showLogoutDialog() {
+        // Create the AlertDialog builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 
+        // Inflate the custom layout/view
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_logout, null);
+        builder.setView(dialogView);
 
-    private void fetchFollowingUserList() {
-        new FirestoreHelper().fetchFollowingList(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID), new FirestoreHelper.FetchListCallback<List<String>>() {
+        // Get the buttons from the custom layout
+        Button buttonNo = dialogView.findViewById(R.id.button_no);
+        Button buttonYes = dialogView.findViewById(R.id.button_yes);
+
+        // Create the AlertDialog
+        AlertDialog dialog = builder.create();
+
+        // Set the button click listeners
+        buttonNo.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSuccess(List<String> result) {
-                int followingCount = result.size();
-                binding.txtFollowingCount.setText(String.valueOf(followingCount));
-            }
-
-            @Override
-            public void onError(String error) {
-//                Toast.makeText(getActivity(), ""+error, Toast.LENGTH_SHORT).show();
-                // Handle error: Show an error message or perform necessary actions
-            }
-        });
-    }
-
-    private void fetchFollowersUserList() {
-        new FirestoreHelper().fetchFollowersList(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID), new FirestoreHelper.FetchListCallback<List<String>>() {
-            @Override
-            public void onSuccess(List<String> result) {
-                int followersCount = result.size();
-                binding.txtFollowersCount.setText(String.valueOf(followersCount));
-            }
-
-            @Override
-            public void onError(String error) {
-//                Toast.makeText(getActivity(), ""+error, Toast.LENGTH_SHORT).show();
-                // Handle error: Show an error message or perform necessary actions
+            public void onClick(View view) {
+                // Dismiss the dialog
+                dialog.dismiss();
             }
         });
+
+        buttonYes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Perform logout operation
+                // For example, you can call a method to handle the logout
+                logout();
+                dialog.dismiss();
+            }
+        });
+
+        // Show the dialog
+        dialog.show();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
+    private void logout() {
+        mGoogleSignInClient.signOut();
+        ApplicationClass.getSharedpref().clearPreferences();
+        Intent mainIntent = new Intent(getActivity(), OnboardingActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(mainIntent);
+        requireActivity().finish();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-    }
-
-    private void updateLevel(String userId,long currentCoins,int currentLevel) {
-        Log.i("jhgjhghjg", "updateLevel: ");
-
-        if (currentCoins >= calculateCoinsForNextLevel(currentLevel)) {
-            int newLevel = currentLevel + 1;
-        try {
-            db = FirebaseFirestore.getInstance();
-            CollectionReference liveDetailsRef = db.collection(Constant.LOGIN_DETAILS);
-
-            // Create a query to find the document with the given userId
-            Query query = liveDetailsRef.whereEqualTo("userId", userId);
-
-            query.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        // Get the document ID for the matched document
-                        String documentId = document.getId();
-
-                        Map<String, Object> updateDetails = new HashMap<>();
-                        updateDetails.put("level", String.valueOf(newLevel));
-
-                        // Update the liveType field from 0 to 1
-                        liveDetailsRef.document(documentId)
-                                .update(updateDetails)
-                                .addOnSuccessListener(aVoid -> {
-//                                    Toast.makeText(requireActivity(), "okk", Toast.LENGTH_SHORT).show();
-                                })
-                                .addOnFailureListener(e -> {
-//                                    Toast.makeText(requireActivity(), "eeeee", Toast.LENGTH_SHORT).show();
-                                });
-                    }
-                } else {
-                    Log.e("UpdateLiveType", "Error getting documents: ", task.getException());
-                }
-            });
-
-        }catch (Exception e){
-
-        }
-        }else {
-//            Toast.makeText(requireActivity(), "else", Toast.LENGTH_SHORT).show();
-        }
-    }
-    private long calculateCoinsForNextLevel(int currentLevel) {
-        // Customize this method based on your level-up logic
-        return (currentLevel + 1) * 300000; // Example: 150,000 coins per level
     }
 }

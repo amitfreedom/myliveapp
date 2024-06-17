@@ -50,18 +50,18 @@ public class HomeFragment extends Fragment {
             binding.searchView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent;
-
-                    intent = new Intent(getActivity().getApplication(), SearchUserActivity.class);
-                    startActivity(intent);
+//                    Intent intent;
+//
+//                    intent = new Intent(getActivity().getApplication(), SearchUserActivity.class);
+//                    startActivity(intent);
                 }
             });
             binding.rightIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent;
-                    intent = new Intent(getActivity().getApplication(), GameLuckyActivity.class);
-                    startActivity(intent);
+//                    Intent intent;
+//                    intent = new Intent(getActivity().getApplication(), GameLuckyActivity.class);
+//                    startActivity(intent);
 
 //                    shareLiveStream();
 //                    shareDeepLink(link);
@@ -71,8 +71,8 @@ public class HomeFragment extends Fragment {
             binding.leftIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(requireActivity(), TopListActivity.class);
-                    startActivity(intent);
+//                    Intent intent = new Intent(requireActivity(), TopListActivity.class);
+//                    startActivity(intent);
                 }
             });
 
@@ -123,7 +123,7 @@ public class HomeFragment extends Fragment {
         MyPagerAdapter adapter = new MyPagerAdapter(getChildFragmentManager());
 //        adapter.addFragment(new MainFragment(), "Fresher");
         adapter.addFragment(new ActiveUserFragment(), "Popular");
-        adapter.addFragment(new ActiveUserFragment(), "Live");
+        adapter.addFragment(new ActiveUserFragment(), "Video Live");
         adapter.addFragment(new ActiveUserFragment(), "Audio live");
 //        adapter.addFragment(new GamesFragment(), "Games");
 //        adapter.addFragment(new PopulerFragment(), "Pk battle");

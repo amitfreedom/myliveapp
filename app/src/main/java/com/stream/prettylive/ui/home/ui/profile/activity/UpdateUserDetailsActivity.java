@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -67,11 +68,11 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    Toast.makeText(this, "Notifications permission granted", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT)
                             .show();
                 } else {
                     Toast.makeText(this,
-                            "Can't post notifications without POST_NOTIFICATIONS permission",
+                            "Can't post notifications without Image permission",
                             Toast.LENGTH_LONG).show();
                 }
             });
@@ -89,10 +90,6 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
             username = getIntent().getStringExtra("username");
         }
 
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-        usersRef = db.collection(Constant.LOGIN_DETAILS);
-
         binding.buttonCamera.setOnClickListener(this);
 
         intentLauncher = registerForActivityResult(
@@ -106,12 +103,8 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
                                     hideProgressBar();
                                     if (user != null) {
                                         getUserDataApi();
-//                                        updateUI(user.getData().getUserProfilePic(), username);
-                                        Log.i("jkdsjkfgjksdfkjdhsjk", "onChanged: "+user.getData().getUserProfilePic());
-                                        Toast.makeText(UpdateUserDetailsActivity.this, user.getData().getUserProfilePic(), Toast.LENGTH_SHORT).show();
-
                                         if (user.getShow()) {
-//                                            Toast.makeText(UpdateUserDetailsActivity.this, user.getData().getUserProfilePic(), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(UpdateUserDetailsActivity.this, user.getMsg(), Toast.LENGTH_SHORT).show();
                                         }
                                     } else {
                                         Toast.makeText(UpdateUserDetailsActivity.this, "Somethings went wrong", Toast.LENGTH_SHORT).show();
@@ -126,8 +119,6 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
 
         getUserDataApi();
         askNotificationPermission();
-
-        fetchUserDetails(ApplicationClass.getSharedpref().getString(AppConstants.USER_ID));
 
         binding.txtUserName.setInputType(InputType.TYPE_NULL); // Disables keyboard input
 
@@ -231,7 +222,7 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
                 bottomSheetDialog.dismiss();
                 if (user != null) {
                     username=user.getData().getUserNickName();
-                    updateUI(user.getData().getUserProfilePic(), user.getData().getUserNickName());
+                    binding.txtUserName.setText(user.getData().getUserNickName());
                     if (user.getShow()) {
                         Toast.makeText(UpdateUserDetailsActivity.this, user.getMsg(), Toast.LENGTH_SHORT).show();
                     }
@@ -241,52 +232,6 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
             }
         });
     }
-
-    private void updateUserName(String userId, String name, BottomSheetDialog bottomSheetDialog) {
-        // Reference to the Firestore collection
-        try {
-            firestore = FirebaseFirestore.getInstance();
-            CollectionReference liveDetailsRef = firestore.collection(Constant.LOGIN_DETAILS);
-
-            // Create a query to find the document with the given userId
-            Query query = liveDetailsRef.whereEqualTo("userId", userId);
-
-            query.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        // Get the document ID for the matched document
-                        String documentId = document.getId();
-
-                        Map<String, Object> updateDetails = new HashMap<>();
-                        updateDetails.put("username", name);
-
-                        // Update the liveType field from 0 to 1
-                        liveDetailsRef.document(documentId)
-                                .update(updateDetails)
-                                .addOnSuccessListener(aVoid -> {
-                                    hideProgressBar();
-                                    bottomSheetDialog.dismiss();
-
-                                    Toast.makeText(this, "Nick Name has been updated successfully", Toast.LENGTH_SHORT).show();
-                                    Log.i("UpdateLiveType", "image updated successfully for user with ID: " + userId);
-                                })
-                                .addOnFailureListener(e -> {
-                                    hideProgressBar();
-                                    bottomSheetDialog.dismiss();
-                                    Toast.makeText(this, "Some things went wrong", Toast.LENGTH_SHORT).show();
-                                    Log.e("UpdateLiveType", "Error updating liveType for user with ID: " + userId, e);
-                                });
-                    }
-                } else {
-                    Log.e("UpdateLiveType", "Error getting documents: ", task.getException());
-                }
-            });
-
-        }catch (Exception e){
-
-        }
-    }
-
 
     private void showProgressBar() {
         progressDialog= new ProgressDialog(this);
@@ -312,33 +257,31 @@ public class UpdateUserDetailsActivity extends AppCompatActivity implements View
     }
 
 
-
-    private void fetchUserDetails(String userId) {
-
-        usersRef.whereEqualTo("userId", userId)
-                .addSnapshotListener((value, error) -> {
-                    if (error != null) {
-                        // Handle error
-                        Log.e("FirestoreListener", "Listen failed: " + error.getMessage());
-                        return;
-                    }
-
-                    for (DocumentSnapshot document : value) {
-                        userDetails = document.toObject(UserDetailsModel.class);
-//                        updateUI(userDetails);
-                    }
-                });
-    }
-
     private void updateUI(String image, String username) {
         try {
             binding.txtUserName.setText(username);
-                Glide.with(UpdateUserDetailsActivity.this)
-                        .load(image)
-                        .into(binding.profileImage);
+            Glide.with(this)
+                    .load(image)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .placeholder(R.drawable.profile_avatar_placeholder)
+                    .error(R.drawable.profile_avatar_placeholder)
+                    .into(binding.profileImage);
 
 
         }catch (Exception e){
+            Log.i(TAG, "updateUI: ");
+
+        }
+
+    }  private void updateUI1(String username) {
+        try {
+            binding.txtUserName.setText(username);
+
+
+
+        }catch (Exception e){
+            Log.i(TAG, "updateUI: ");
 
         }
 

@@ -129,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
                                     if (response.getShow()) {
                                         Toast.makeText(MainActivity.this, response.getMsg(), Toast.LENGTH_SHORT).show();
                                     }
-
                                     goToLive(response);
                                 } else {
                                     Toast.makeText(MainActivity.this, "Live Streaming not created ", Toast.LENGTH_SHORT).show();

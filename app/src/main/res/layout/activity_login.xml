@@ -9,13 +9,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="30dp">
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/todo"
             android:src="@drawable/iv_back"
             android:background="@color/white"
             android:padding="5dp"/>
@@ -117,7 +118,7 @@
             android:textSize="14sp" />
 
         <LinearLayout
-            android:visibility="visible"
+            android:visibility="gone"
             android:id="@+id/or"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -153,6 +154,7 @@
 
         <!-- res/layout/circular_social_button.xml -->
         <LinearLayout
+            android:visibility="gone"
             android:layout_marginVertical="@dimen/_10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -186,6 +188,7 @@
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:contentDescription="TODO"
                     android:src="@drawable/ic_google"
                     android:scaleType="centerInside"
                     android:background="?attr/selectableItemBackgroundBorderless"

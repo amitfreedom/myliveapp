@@ -15,7 +15,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@color/top_color">
+            android:background="@color/pink_top">
 
             <ImageButton
                 android:id="@+id/backPress"
@@ -50,7 +50,7 @@
                 android:id="@+id/profileImage"
                 android:layout_width="@dimen/_100dp"
                 android:layout_height="@dimen/_100dp"
-                android:src="@drawable/beauty_filter_gray_monet"
+                android:src="@drawable/profile_avatar_placeholder"
                 app:civ_border_color="@color/top_color"
                 app:civ_border_width="1dp"/>
 
